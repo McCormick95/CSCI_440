@@ -75,6 +75,55 @@ window.onload = function init()
         vec2(0.0, 0.5)  
     ];
 
+    var colors = [
+        //sprout
+        vec4(0.1, 1.0, 0.5, 1.0),  
+        vec4(0.1, 1.0, 0.5, 1.0),   
+        vec4(0.1, 1.0, 0.5, 1.0),   
+        vec4(0.1, 1.0, 0.5, 1.0),
+        //bud_lower
+        vec4(0.7, 1.0, 0.0, 1.0),  
+        vec4(0.7, 1.0, 0.0, 1.0),   
+        vec4(0.7, 1.0, 0.0, 1.0),   
+        vec4(0.7, 1.0, 0.0, 1.0),
+        //stem
+        vec4(0.0, 1.0, 0.6, 1.0),  
+        vec4(0.0, 1.0, 0.6, 1.0),   
+        vec4(0.0, 1.0, 0.6, 1.0),   
+        vec4(0.0, 1.0, 0.6, 1.0),
+        //bud_tall
+        vec4(1.0, 1.0, 0.0, 1.0),  
+        vec4(1.0, 1.0, 0.0, 1.0),   
+        vec4(1.0, 1.0, 0.0, 1.0),   
+        vec4(1.0, 1.0, 0.0, 1.0),
+        //leaf
+        vec4(0.0, 1.0, 0.6, 1.0),  
+        vec4(0.0, 1.0, 0.6, 1.0),   
+        vec4(0.0, 1.0, 0.6, 1.0),   
+        vec4(0.0, 1.0, 0.6, 1.0),
+        //bloom
+        vec4(1.0, 0.5, 1.0, 1.0),
+        vec4(1.0, 0.5, 1.0, 1.0),
+        vec4(1.0, 0.5, 1.0, 1.0),
+        vec4(1.0, 0.5, 1.0, 1.0),
+        vec4(1.0, 0.5, 1.0, 1.0),
+        vec4(1.0, 0.5, 1.0, 1.0),
+        vec4(1.0, 0.5, 1.0, 1.0),
+        vec4(1.0, 0.5, 1.0, 1.0),
+        vec4(1.0, 0.5, 1.0, 1.0),
+        vec4(1.0, 0.5, 1.0, 1.0),
+        vec4(1.0, 0.5, 1.0, 1.0),
+        vec4(1.0, 0.5, 1.0, 1.0),
+        vec4(1.0, 0.5, 1.0, 1.0),
+        vec4(1.0, 0.5, 1.0, 1.0),
+        vec4(1.0, 0.5, 1.0, 1.0),
+        vec4(1.0, 0.5, 1.0, 1.0),
+        vec4(1.0, 0.5, 1.0, 1.0),
+        vec4(1.0, 0.5, 1.0, 1.0),
+        vec4(1.0, 0.5, 1.0, 1.0),
+        vec4(1.0, 0.5, 1.0, 1.0)  
+    ];
+
     // Load the data into the GPU
 
     var vBuffer = gl.createBuffer();
@@ -86,6 +135,14 @@ window.onload = function init()
     var positionLoc = gl.getAttribLocation( program, "aPosition");
     gl.vertexAttribPointer(positionLoc, 2, gl.FLOAT, false, 0, 0);
     gl.enableVertexAttribArray(positionLoc);
+
+    var colorBuffer = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, colorBuffer);
+    gl.bufferData(gl.ARRAY_BUFFER, flatten(colors), gl.STATIC_DRAW);
+
+    var aColor = gl.getAttribLocation(program, "aColor");
+    gl.vertexAttribPointer(aColor, 4, gl.FLOAT, false, 0, 0);
+    gl.enableVertexAttribArray(aColor);
 
     thetaLoc = gl.getUniformLocation( program, "uTheta" );
 
