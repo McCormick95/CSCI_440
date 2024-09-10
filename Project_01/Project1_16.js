@@ -3,15 +3,15 @@
 var gl;
 
 //global variables
-var spout_selected;
-var grow_selected;
-var bloom_selected;
+var sprout_selected = -1;
+var grow_selected = -1;
+var bloom_selected = -1;
 
 var theta = 0.0;
 var thetaLoc;
 
 var delay = 100;
-var direction = true;
+// var direction = true;
 
 window.onload = function init()
 {
@@ -31,28 +31,32 @@ window.onload = function init()
     var program = initShaders(gl, "vertex-shader", "fragment-shader");
     gl.useProgram(program);
     var vertices = [
-        //sprout
-        vec2(-0.05,  -1.0),
-        vec2(-0.05,  -0.7),
-        vec2(0.05,  -1.0),
+        //sprout: 4 vertices
+        vec2(-0.05, -1.0),
+        vec2(-0.05, -0.7),
+        vec2(0.05, -1.0),
         vec2(0.05, -0.7),
-        //grow
+        //bud_lower: 4 vertices
+        vec2(-0.1, -0.8),
+        vec2(-0.1, -0.6),
+        vec2(0.1, -0.8),
+        vec2(0.1, -0.6),
+        //stem: 4 vertices
         vec2(-0.05, -1.0),
         vec2(-0.05, -0.0),
         vec2(0.05, -1.0),
         vec2(0.05, -0.0),
-        //bloom
+        //bud_tall: 4 vertices
         vec2(-0.1, -0.1),
         vec2(-0.1, 0.1),
         vec2(0.1, -0.1),
         vec2(0.1, 0.1),
-        //leaf
-        vec2(-0.75, -0.75),
-        vec2(0.5, -0.5),
-        vec2(0.25, -0.75),
-        vec2(-0.5, -0.5),
-        vec2(0.0, -0.5),
-        //bloom
+        //leaf: 4 vertices
+        vec2(0.4, -0.5),
+        vec2(0.0, -0.7),
+        vec2(-0.4, -0.6),
+        vec2(0.0, -0.7),
+        //bloom: 16 vertices
         vec2(0.1, 0.0),
         vec2(0.4, -0.4),
         vec2(0.0, -0.1),
@@ -93,12 +97,18 @@ window.onload = function init()
     document.getElementById("Controls" ).onclick = function(event) {
         switch(event.target.index) {
           case 0:
-            spout_selected = 0;
+            sprout_selected = 0;
+            grow_selected = -1;
+            bloom_selected = -1;
             break;
          case 1:
+            sprout_selected = -1;
             grow_selected = 1;
+            bloom_selected = -1;
             break;
          case 2:
+            sprout_selected = -1;
+            grow_selected = -1;
             bloom_selected = 2;
             break;
        }
@@ -109,11 +119,17 @@ window.onload = function init()
         switch(key) {
           case '1':
             sprout_selected = 0;
+            grow_selected = -1;
+            bloom_selected = -1;
             break;
           case '2':
+            sprout_selected = -1;
             grow_selected = 1;
+            bloom_selected = -1;
             break;
           case '3':
+            sprout_selected = -1;
+            grow_selected = -1;
             bloom_selected = 2;
             break;
         }
@@ -125,16 +141,26 @@ function render()
 {
     gl.clear(gl.COLOR_BUFFER_BIT);
 
-    if(spout_selected == 0) {
-        gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+    gl.uniform1f(thetaLoc, 0);
+
+    if(sprout_selected == 0) {
+        gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4); //sprout: 4 vertices
+        gl.drawArrays(gl.TRIANGLE_STRIP, 4, 4); //bud_lower: 4 vertices
     }
     else if(grow_selected == 1) {
-        gl.drawArrays(gl.TRIANGLE_STRIP, 4, 4);
+        gl.drawArrays(gl.TRIANGLE_STRIP, 8, 4);  //stem: 4 vertices
+        gl.drawArrays(gl.TRIANGLE_STRIP, 12, 4); //bud_tall: 4 vertices
+        gl.drawArrays(gl.TRIANGLE_STRIP, 16, 4); //leaf: 4 vertices
     }
     else if(bloom_selected == 2) {
-        gl.drawArrays(gl.TRIANGLE_STRIP, 8, 4);
-        gl.drawArrays(gl.TRIANGLE_STRIP, 12, 5);
-        gl.drawArrays(gl.TRIANGLE_FAN, 17, 16);
+        gl.drawArrays(gl.TRIANGLE_STRIP, 8, 4); //stem: 4 vertices
+        gl.drawArrays(gl.TRIANGLE_STRIP, 12, 4); //bud_tall: 4 vertices 
+        gl.drawArrays(gl.TRIANGLE_STRIP, 16, 4); //leaf: 4 vertices
+        
+        //rotate the bloom
+        theta += 0.1;
+        gl.uniform1f(thetaLoc, theta);
+        gl.drawArrays(gl.TRIANGLE_FAN, 20, 16); //bloom: 16 vertices
     }
 
     setTimeout(
