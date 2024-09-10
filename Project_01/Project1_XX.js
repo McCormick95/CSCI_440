@@ -25,7 +25,6 @@ window.onload = function init()
 
     var program = initShaders(gl, "vertex-shader", "fragment-shader");
     gl.useProgram(program);
-
     var vertices = [
         //sprout
         vec2(-0.05,  -1.0),
@@ -47,7 +46,24 @@ window.onload = function init()
         vec2(0.5, -0.5),
         vec2(0.25, -0.75),
         vec2(-0.5, -0.5),
-        vec2(0.0, -0.5)
+        vec2(0.0, -0.5),
+        //bloom
+        vec2(0.1, 0.0),
+        vec2(0.4, -0.4),
+        vec2(0.0, -0.1),
+        vec2(-0.4, -0.4),
+        vec2(-0.1, 0.0),
+        vec2(-0.4, 0.4),
+        vec2(0.0, 0.1),
+        vec2(0.4, 0.4),
+        vec2(0.1, 0.1),
+        vec2(0.5, 0.0),
+        vec2(0.1, -0.1),
+        vec2(0.0, -0.5),
+        vec2(-0.1, -0.1),
+        vec2(-0.5, 0.0),
+        vec2(-0.1, 0.1),
+        vec2(0.0, 0.5)
         
     ];
 
@@ -109,10 +125,10 @@ function render()
 
     
 
-    gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
-    gl.drawArrays(gl.TRIANGLE_STRIP, 4, 4);
-    gl.drawArrays(gl.TRIANGLE_STRIP, 8, 4);
-    //gl.drawArrays(gl.TRIANGLE_FAN, 12, 5);
+    //gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+    //gl.drawArrays(gl.TRIANGLE_STRIP, 4, 4);
+    //gl.drawArrays(gl.TRIANGLE_STRIP, 8, 4);
+    gl.drawArrays(gl.TRIANGLE_FAN, 17, 16);
 
     setTimeout(
         function (){requestAnimationFrame(render);}, delay
