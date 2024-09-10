@@ -2,6 +2,11 @@
 
 var gl;
 
+//global variables
+var spout_selected;
+var grow_selected;
+var bloom_selected;
+
 var theta = 0.0;
 var thetaLoc;
 
@@ -37,10 +42,10 @@ window.onload = function init()
         vec2(0.05, -1.0),
         vec2(0.05, -0.0),
         //bloom
-        vec2(-0.15, -0.15),
-        vec2(-0.15, 0.15),
-        vec2(0.15, -0.15),
-        vec2(0.15, 0.15),
+        vec2(-0.1, -0.1),
+        vec2(-0.1, 0.1),
+        vec2(0.1, -0.1),
+        vec2(0.1, 0.1),
         //leaf
         vec2(-0.75, -0.75),
         vec2(0.5, -0.5),
@@ -63,8 +68,7 @@ window.onload = function init()
         vec2(-0.1, -0.1),
         vec2(-0.5, 0.0),
         vec2(-0.1, 0.1),
-        vec2(0.0, 0.5)
-        
+        vec2(0.0, 0.5)  
     ];
 
     // Load the data into the GPU
@@ -89,13 +93,13 @@ window.onload = function init()
     document.getElementById("Controls" ).onclick = function(event) {
         switch(event.target.index) {
           case 0:
-            direction = !direction;
+            spout_selected = 0;
             break;
          case 1:
-            delay /= 2.0;
+            grow_selected = 1;
             break;
          case 2:
-            delay *= 2.0;
+            bloom_selected = 2;
             break;
        }
     };
@@ -104,15 +108,13 @@ window.onload = function init()
         var key = String.fromCharCode(event.keyCode);
         switch(key) {
           case '1':
-            direction = !direction;
+            sprout_selected = 0;
             break;
-
           case '2':
-            delay /= 2.0;
+            grow_selected = 1;
             break;
-
           case '3':
-            delay *= 2.0;
+            bloom_selected = 2;
             break;
         }
     };
@@ -123,12 +125,17 @@ function render()
 {
     gl.clear(gl.COLOR_BUFFER_BIT);
 
-    
-
-    //gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
-    //gl.drawArrays(gl.TRIANGLE_STRIP, 4, 4);
-    //gl.drawArrays(gl.TRIANGLE_STRIP, 8, 4);
-    gl.drawArrays(gl.TRIANGLE_FAN, 17, 16);
+    if(spout_selected == 0) {
+        gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+    }
+    else if(grow_selected == 1) {
+        gl.drawArrays(gl.TRIANGLE_STRIP, 4, 4);
+    }
+    else if(bloom_selected == 2) {
+        gl.drawArrays(gl.TRIANGLE_STRIP, 8, 4);
+        gl.drawArrays(gl.TRIANGLE_STRIP, 12, 5);
+        gl.drawArrays(gl.TRIANGLE_FAN, 17, 16);
+    }
 
     setTimeout(
         function (){requestAnimationFrame(render);}, delay
