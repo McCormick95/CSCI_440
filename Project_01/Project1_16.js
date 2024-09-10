@@ -11,7 +11,6 @@ var theta = 0.0;
 var thetaLoc;
 
 var delay = 100;
-// var direction = true;
 
 window.onload = function init()
 {
@@ -24,7 +23,7 @@ window.onload = function init()
     //  Configure WebGL
     //
     gl.viewport(0, 0, canvas.width, canvas.height);
-    gl.clearColor(0.0, 0.0, 1.0, 1.0);
+    gl.clearColor(0.0, 0.4, 1.0, 1.0);
 
     //  Load shaders and initialize attribute buffers
 
@@ -146,10 +145,6 @@ window.onload = function init()
 
     thetaLoc = gl.getUniformLocation( program, "uTheta" );
 
-    // Initialize event handlers
-    // document.getElementById("Direction").onclick = function () {
-    //     direction = !direction;
-    // };
 
     document.getElementById("Controls" ).onclick = function(event) {
         switch(event.target.index) {
@@ -215,7 +210,7 @@ function render()
         gl.drawArrays(gl.TRIANGLE_STRIP, 16, 4); //leaf: 4 vertices
         
         //rotate the bloom
-        theta += 0.1;
+        theta += 0.07;
         gl.uniform1f(thetaLoc, theta);
         gl.drawArrays(gl.TRIANGLE_FAN, 20, 16); //bloom: 16 vertices
     }
