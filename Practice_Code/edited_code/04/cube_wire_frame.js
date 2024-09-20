@@ -95,14 +95,14 @@ function quad(a, b, c, d)
     ];
 
     var vertexColors = [
-      vec4(0.0, 0.0, 0.0, 1.0),  // black
-      vec4(1.0, 0.0, 0.0, 1.0),  // red
-      vec4(1.0, 1.0, 0.0, 1.0),  // yellow
-      vec4(0.0, 1.0, 0.0, 1.0),  // green
-      vec4(0.0, 0.0, 1.0, 1.0),  // blue
-      vec4(1.0, 0.0, 1.0, 1.0),  // magenta
-      vec4(0.0, 1.0, 1.0, 1.0),  // cyan
-      vec4(1.0, 1.0, 1.0, 1.0)   // white
+        vec4(0.0, 0.0, 0.0, 1.0),  // black
+        vec4(1.0, 0.0, 0.0, 1.0),  // red
+        vec4(1.0, 1.0, 0.0, 1.0),  // yellow
+        vec4(0.0, 1.0, 0.0, 1.0),  // green
+        vec4(0.0, 0.0, 1.0, 1.0),  // blue
+        vec4(1.0, 0.0, 1.0, 1.0),  // magenta
+        vec4(0.0, 1.0, 1.0, 1.0),  // cyan
+        vec4(1.0, 1.0, 1.0, 1.0)   // white
     ];
 
     // We need to parition the quad into two triangles in order for
@@ -111,12 +111,12 @@ function quad(a, b, c, d)
 
     //vertex color assigned by the index of the vertex
 
-    var indices = [a, b, c, a, c, d];
+    var indices = [a, b, c, d];
 
     for ( var i = 0; i < indices.length; ++i ) {
         positions.push(vertices[indices[i]]);
         //colors.push( vertexColors[indices[i]] );
-
+        
         // for solid colored faces use
         colors.push(vertexColors[a]);
 
@@ -127,10 +127,16 @@ function render()
 {
     gl.clear( gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
-    theta[axis] += 2.0;
+    theta[axis] += 0.05;
     gl.uniform3fv(thetaLoc, theta);
 
-    gl.drawArrays(gl.TRIANGLES, 0, numPositions);
+    gl.drawArrays(gl.LINE_LOOP, 0, 4);
+    gl.drawArrays(gl.LINE_LOOP, 4, 4);
+    gl.drawArrays(gl.LINE_LOOP, 8, 4);
+    gl.drawArrays(gl.LINE_LOOP, 12, 4);
+    gl.drawArrays(gl.LINE_LOOP, 16, 4);
+    gl.drawArrays(gl.LINE_LOOP, 20, 4);
+
 
     requestAnimationFrame( render );
 }
