@@ -16,6 +16,7 @@ var axis = 0;
 var theta = [0, 0, 0];
 
 var thetaLoc;
+var speed = 1;
 
 window.onload = function init()
 {
@@ -57,7 +58,6 @@ window.onload = function init()
     thetaLoc = gl.getUniformLocation(program, "uTheta");
 
     //event listeners for buttons
-
     document.getElementById( "xButton" ).onclick = function () {
         axis = xAxis;
     };
@@ -66,6 +66,20 @@ window.onload = function init()
     };
     document.getElementById( "zButton" ).onclick = function () {
         axis = zAxis;
+    };
+    document.getElementById( "direction" ).onclick = function () {
+    
+    };
+    document.getElementById("pause").onclick = function () {
+        if(speed == 1) {
+            speed = 0;
+        }
+        else {
+            speed = 1;
+        }
+    };
+    document.getElementById("color").onclick = function () {
+
     };
 
     render();
@@ -126,7 +140,7 @@ function render()
 {
     gl.clear( gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
-    theta[axis] += 2.0;
+    theta[axis] += speed;
     gl.uniform3fv(thetaLoc, theta);
 
     gl.drawArrays(gl.TRIANGLES, 0, numPositions);
