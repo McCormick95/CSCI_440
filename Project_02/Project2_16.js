@@ -83,7 +83,7 @@ window.onload = function init()
 
     document.getElementById("settings").onclick = function() {
         var selectedOption = this.options[this.selectedIndex];
-        alert("Selected: " + selectedOption.text);
+        // alert("Selected: " + selectedOption.text);
 
         if(selectedOption.value == 1){              // Star Birth
             status_u = 1;
