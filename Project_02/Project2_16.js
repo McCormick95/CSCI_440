@@ -13,6 +13,7 @@ var MatrixLoc;
 
 var  angle = 0;
 var  axis = vec3(1, 1, 0);
+var orbit_axis = vec3(0, 0, 1);
 var orbit_angle = 0;
 
 var lastPos = [0, 0, 0];
@@ -148,14 +149,13 @@ function quad(a, b, c, d)
 }
 
 function render() {
-    
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
-    
+
     // Check if paused
     if (pause_status == 0) {
         // Only increment angle when not paused
         angle += Math.PI / 4; // Adjust this value for rotation speed
-        //orbit_angle += Math.PI / 180; // Adjust this value for orbit speed
+        orbit_angle += Math.PI / 15; // Adjust this value for orbit speed
     }
 
     // Ensure axis is a vec3 before calling rotate
@@ -163,30 +163,76 @@ function render() {
 
     // Reset model matrix to identity at the start of each frame
     m_Matrix = mat4();
-    // Apply rotation
-    m_Matrix = mult(m_Matrix, r);
 
-    // Apply scaling if status_u is 1
-    if (status_u == 1) {
-        var s = scale(0.25, 0.25, 0.25);
-        m_Matrix = mult(m_Matrix, s);
-    }
-
-    gl.uniformMatrix4fv(MatrixLoc, false, flatten(m_Matrix));
-
-    // Draw the shape
-    if (status_u == 1) {
-        for (var i = 0; i < positions.length; i += 4) {
-            gl.drawArrays(gl.TRIANGLE_FAN, i, 4);
-        }
-    } else {
+    if (status_u == 0) {
+        // Initial wire-frame cube
+        m_Matrix = mult(m_Matrix, r);
+        gl.uniformMatrix4fv(MatrixLoc, false, flatten(m_Matrix));
         for (var i = 0; i < positions.length; i += 4) {
             gl.drawArrays(gl.LINE_LOOP, i, 4);
         }
-    }
+    } else if (status_u == 1) {
+        // Scaled singular cube
+        var s = scale(0.25, 0.25, 0.25);
+        m_Matrix = mult(m_Matrix, r);
+        m_Matrix = mult(m_Matrix, s);
+        gl.uniformMatrix4fv(MatrixLoc, false, flatten(m_Matrix));
+        for (var i = 0; i < positions.length; i += 4) {
+            gl.drawArrays(gl.TRIANGLE_FAN, i, 4);
+        }
+    } else if (status_u == 2) {
+        // Center scaled cube
+        var s = scale(0.25, 0.25, 0.25);
+        m_Matrix = mult(m_Matrix, r);
+        m_Matrix = mult(m_Matrix, s);
+        gl.uniformMatrix4fv(MatrixLoc, false, flatten(m_Matrix));
+        for (var i = 0; i < positions.length; i += 4) {
+            gl.drawArrays(gl.TRIANGLE_FAN, i, 4);
+        }
 
-    
-    requestAnimationFrame(render);
+        // Define the positions of the additional cubes
+        var additionalCubes = [
+            vec3(0.5, -0.25, 0.0),
+            vec3(-0.6, 0.4, 0.0),
+            vec3(0.3, 0.35, 0.0),
+            vec3(-0.25, -0.25, 0.0)
+        ];
+
+    // Define a separate scaling factor for the additional cubes
+    var additionalCubeScale = scale(0.1, 0.1, 0.1);
+
+    // Render additional cubes
+    for (var j = 0; j < additionalCubes.length; j++) {
+        var orbit = rotate(orbit_angle, orbit_axis);
+
+        // Reset model matrix to identity
+        var cubeMatrix = mat4();
+
+        // Apply rotation around the center cube (orbit)
+        cubeMatrix = mult(cubeMatrix, orbit);
+
+        // Apply translation to position the cube
+        var translation = translate(additionalCubes[j][0], additionalCubes[j][1], additionalCubes[j][2]);
+        cubeMatrix = mult(cubeMatrix, translation);
+
+        // Apply separate scaling for the additional cubes
+        cubeMatrix = mult(cubeMatrix, additionalCubeScale);
+
+        // Apply rotation around their own axes
+        var selfRotation = rotate(angle, vec3(1, 1, 0)); // Rotate around the diagonal axis
+        cubeMatrix = mult(cubeMatrix, selfRotation);
+
+        // Pass the transformation matrix to the shader for the additional cube
+        gl.uniformMatrix4fv(MatrixLoc, false, flatten(cubeMatrix));
+
+        // Draw the additional cube
+        for (var i = 0; i < positions.length; i += 4) {
+            gl.drawArrays(gl.TRIANGLE_FAN, i, 4);
+        }
+    }
+}
+
+requestAnimationFrame(render);
 }
 
 // Call this function to start the rendering
