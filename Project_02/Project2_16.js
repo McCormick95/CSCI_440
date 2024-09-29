@@ -12,14 +12,15 @@ var m_Matrix;
 var MatrixLoc;
 
 var  angle = 0;
-var  axis = 0;
+var  axis = vec3(1, 1, 0);
+var orbit_angle = 0;
 
 var lastPos = [0, 0, 0];
 var curx, cury;
 var startX, startY;
 
-var status_u = -1;
-var pause_status = 1;
+var status_u = 0;
+var pause_status = 0;
 
 var vertices = [
     vec4( -0.5, -0.5,  0.5, 1.0 ),
@@ -112,7 +113,7 @@ window.onload = function init()
         }
     };
 
-    m_Matrix = mat4();
+    //m_Matrix = mat4();
     MatrixLoc = gl.getUniformLocation(program, "m_Matrix");
 
     render();
@@ -146,41 +147,49 @@ function quad(a, b, c, d)
     }
 }
 
-function render()
-{    
-    gl.clear( gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+function render() {
     
-// CHECK IF PAUSED
-    if(pause_status == 0){
-        axis = [1, 1, 0];
-        angle = 0;
-    }
-    else{
-        axis = [1, 1, 0];
-        angle = Math.PI / 4; 
+    gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+    
+    // Check if paused
+    if (pause_status == 0) {
+        // Only increment angle when not paused
+        angle += Math.PI / 4; // Adjust this value for rotation speed
+        orbit_angle += Math.PI / 180; // Adjust this value for orbit speed
     }
 
+    // Ensure axis is a vec3 before calling rotate
     var r = rotate(angle, axis);
 
-// CHECK MENU SELECTION
-    if (status_u == 1) {
-        var r = rotate(angle, axis);
-        m_Matrix = mult(m_Matrix, r);
-      
-        gl.uniformMatrix4fv(MatrixLoc, false, flatten(m_Matrix));
+    // Reset model matrix to identity at the start of each frame
+    m_Matrix = mat4();
+    // Apply rotation
+    m_Matrix = mult(m_Matrix, r);
 
+    // Apply scaling if status_u is 1
+    if (status_u == 1) {
+        var s = scale(0.25, 0.25, 0.25);
+        m_Matrix = mult(m_Matrix, s);
+    }
+
+    gl.uniformMatrix4fv(MatrixLoc, false, flatten(m_Matrix));
+
+    // Draw the shape
+    if (status_u == 1) {
         for (var i = 0; i < positions.length; i += 4) {
             gl.drawArrays(gl.TRIANGLE_FAN, i, 4);
         }
-    }
-    else{
-        m_Matrix = mult(m_Matrix, r);
-        gl.uniformMatrix4fv(MatrixLoc, false, flatten(m_Matrix));
-
-        for( var i=0; i<positions.length; i+=4){
-            gl.drawArrays( gl.LINE_LOOP, i, 4);
+    } else {
+        for (var i = 0; i < positions.length; i += 4) {
+            gl.drawArrays(gl.LINE_LOOP, i, 4);
         }
     }
+
     
-    requestAnimationFrame( render );
+    requestAnimationFrame(render);
 }
+
+// Call this function to start the rendering
+// function startRendering() {
+//     requestAnimationFrame(render);
+// }
