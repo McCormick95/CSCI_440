@@ -11,8 +11,8 @@ var colors = [];
 var m_Matrix;
 var MatrixLoc;
 
-var  angle = 0.0;
-var  axis = vec3(0, 0, 1);
+var  angle = 0;
+var  axis = 0;
 
 var lastPos = [0, 0, 0];
 var curx, cury;
@@ -21,7 +21,27 @@ var startX, startY;
 var status_u = -1;
 var pause_status = 1;
 
+var vertices = [
+    vec4( -0.5, -0.5,  0.5, 1.0 ),
+    vec4( -0.5,  0.5,  0.5, 1.0 ),
+    vec4(  0.5,  0.5,  0.5, 1.0 ),
+    vec4(  0.5, -0.5,  0.5, 1.0 ),
+    vec4( -0.5, -0.5, -0.5, 1.0 ),
+    vec4( -0.5,  0.5, -0.5, 1.0 ),
+    vec4(  0.5,  0.5, -0.5, 1.0 ),
+    vec4(  0.5, -0.5, -0.5, 1.0 )
+];
 
+var vertexColors = [
+    vec4( 0.0, 0.0, 0.0, 1.0 ),  // black
+    vec4( 1.0, 0.0, 0.0, 1.0 ),  // red
+    vec4( 1.0, 1.0, 0.0, 1.0 ),  // yellow
+    vec4( 0.0, 1.0, 0.0, 1.0 ),  // green
+    vec4( 0.0, 0.0, 1.0, 1.0 ),  // blue
+    vec4( 1.0, 0.0, 1.0, 1.0 ),  // magenta
+    vec4( 0.0, 1.0, 1.0, 1.0 ),  // cyan
+    vec4( 1.0, 1.0, 1.0, 1.0 )   // white
+  ];
 
 window.onload = function init()
 {
@@ -59,9 +79,6 @@ window.onload = function init()
     var positionLoc = gl.getAttribLocation( program, "aPosition");
     gl.vertexAttribPointer(positionLoc, 4, gl.FLOAT, false, 0, 0);
     gl.enableVertexAttribArray(positionLoc );
-
-    m_Matrix = mat4();
-    MatrixLoc = gl.getUniformLocation(program, "uMatrix");
     
     //gl.uniformMatrix4fv(rotationMatrixLoc, false, flatten(rotationMatrix));
 
@@ -95,6 +112,9 @@ window.onload = function init()
         }
     };
 
+    m_Matrix = mat4();
+    MatrixLoc = gl.getUniformLocation(program, "m_Matrix");
+
     render();
 }
 
@@ -110,34 +130,6 @@ function colorCube()
 
 function quad(a, b, c, d)
 {
-    var vertices = [
-        vec4( -0.5, -0.5,  0.5, 1.0 ),
-        vec4( -0.5,  0.5,  0.5, 1.0 ),
-        vec4(  0.5,  0.5,  0.5, 1.0 ),
-        vec4(  0.5, -0.5,  0.5, 1.0 ),
-        vec4( -0.5, -0.5, -0.5, 1.0 ),
-        vec4( -0.5,  0.5, -0.5, 1.0 ),
-        vec4(  0.5,  0.5, -0.5, 1.0 ),
-        vec4(  0.5, -0.5, -0.5, 1.0 )
-    ];
-
-    var vertexColors = [
-      vec4( 0.0, 0.0, 0.0, 1.0 ),  // black
-      vec4( 1.0, 0.0, 0.0, 1.0 ),  // red
-      vec4( 1.0, 1.0, 0.0, 1.0 ),  // yellow
-      vec4( 0.0, 1.0, 0.0, 1.0 ),  // green
-      vec4( 0.0, 0.0, 1.0, 1.0 ),  // blue
-      vec4( 1.0, 0.0, 1.0, 1.0 ),  // magenta
-      vec4( 0.0, 1.0, 1.0, 1.0 ),  // cyan
-      vec4( 1.0, 1.0, 1.0, 1.0 )   // white
-    ];
-
-    // We need to parition the quad into two triangles in order for
-    // WebGL to be able to render it.  In this case, we create two
-    // triangles from the quad indices
-
-    //vertex color assigned by the index of the vertex
-
     var indices = [ a, b, c, d];
 
     for ( var i = 0; i < indices.length; ++i ) {
@@ -145,8 +137,7 @@ function quad(a, b, c, d)
 
         if(status_u == 1){
             // for interpolated colors use
-            colors.push(vertexColors[indices[i]]);
-            
+            colors.push(vertexColors[indices[i]]);  
         }
         else{
             // for solid colored faces use
@@ -156,35 +147,40 @@ function quad(a, b, c, d)
 }
 
 function render()
-{
+{    
+    gl.clear( gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+    
+// CHECK IF PAUSED
     if(pause_status == 0){
         axis = [1, 1, 0];
         angle = 0;
     }
-
-    gl.clear( gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
-
-    //m_Matrix = mult(translate(0.025, .025, 0), rotate(angle, axis));
-
-    m_Matrix = mult(m_Matrix, rotate(angle, axis));
-
-    gl.uniformMatrix4fv(MatrixLoc, false, flatten(m_Matrix));
-
-    if(status_u == 1){
+    else{
         axis = [1, 1, 0];
-        angle = Math.PI / 4;
-        for( var i=0; i<positions.length; i+=4){
-            gl.drawArrays( gl.TRIANGLE_FAN, i, 4);
+        angle = Math.PI / 4; 
+    }
+
+    var r = rotate(angle, axis);
+
+// CHECK MENU SELECTION
+    if (status_u == 1) {
+        var r = rotate(angle, axis);
+        m_Matrix = mult(m_Matrix, r);
+      
+        gl.uniformMatrix4fv(MatrixLoc, false, flatten(m_Matrix));
+
+        for (var i = 0; i < positions.length; i += 4) {
+            gl.drawArrays(gl.TRIANGLE_FAN, i, 4);
         }
     }
     else{
-        axis = [1, 1, 0];
-        angle = Math.PI / 4;
+        m_Matrix = mult(m_Matrix, r);
+        gl.uniformMatrix4fv(MatrixLoc, false, flatten(m_Matrix));
+
         for( var i=0; i<positions.length; i+=4){
             gl.drawArrays( gl.LINE_LOOP, i, 4);
         }
     }
-    
     
     requestAnimationFrame( render );
 }
