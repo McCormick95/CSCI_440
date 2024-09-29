@@ -155,7 +155,7 @@ function render() {
     if (pause_status == 0) {
         // Only increment angle when not paused
         angle += Math.PI / 4; // Adjust this value for rotation speed
-        orbit_angle += Math.PI / 180; // Adjust this value for orbit speed
+        //orbit_angle += Math.PI / 180; // Adjust this value for orbit speed
     }
 
     // Ensure axis is a vec3 before calling rotate
