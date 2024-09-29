@@ -19,6 +19,7 @@ var curx, cury;
 var startX, startY;
 
 var status_u = -1;
+var pause_status = 1;
 
 
 
@@ -75,12 +76,22 @@ window.onload = function init()
         else if(selectedOption.value == 2){
             status_u = 2;
         }
-        else if(selectedOption.text == 3){
-            status_u = 2;
+        else if(selectedOption.value == 3){
+            status_u = 3;
         }
         else{
             status_u = 0;
             
+        }
+    };
+
+    document.getElementById("pause").onclick = function() {
+        alert("Pause");
+        if(pause_status == 0){
+            pause_status = 1;
+        }
+        else{
+            pause_status = 0;
         }
     };
 
@@ -146,6 +157,11 @@ function quad(a, b, c, d)
 
 function render()
 {
+    if(pause_status == 0){
+        axis = [1, 1, 0];
+        angle = 0;
+    }
+
     gl.clear( gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
     //m_Matrix = mult(translate(0.025, .025, 0), rotate(angle, axis));
@@ -168,6 +184,7 @@ function render()
             gl.drawArrays( gl.LINE_LOOP, i, 4);
         }
     }
+    
     
     requestAnimationFrame( render );
 }
