@@ -213,7 +213,7 @@ function render() {
 
             cubeMatrix = mult(cubeMatrix, scale(sep_scales[j][0], sep_scales[j][1], sep_scales[j][2]));
 
-            var selfRotation = rotate(angle, vec3(1, 1, 0)); 
+            var selfRotation = rotate(orbit_angle, vec3(1, 1, 0)); 
             cubeMatrix = mult(cubeMatrix, selfRotation);
 
             gl.uniformMatrix4fv(MatrixLoc, false, flatten(cubeMatrix));
