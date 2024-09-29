@@ -114,7 +114,7 @@ window.onload = function init()
     };
 
     document.getElementById("pause").onclick = function() {
-        alert("Pause");
+        //alert("Pause");
         if(pause_status == 0){
             pause_status = 1;
         }
