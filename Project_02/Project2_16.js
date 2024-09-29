@@ -7,6 +7,7 @@ var numPositions  = 36;
 
 var positions = [];
 var colors = [];
+var colors_interp = [];
 
 var m_Matrix;
 var MatrixLoc;
@@ -22,6 +23,7 @@ var startX, startY;
 
 var status_u = 0;
 var pause_status = 0;
+var color_select = 0;
 
 var vertices = [
     vec4( -0.5, -0.5,  0.5, 1.0 ),
@@ -35,14 +37,14 @@ var vertices = [
 ];
 
 var vertexColors = [
-    vec4( 0.0, 0.0, 0.0, 1.0 ),  // black
-    vec4( 1.0, 0.0, 0.0, 1.0 ),  // red
-    vec4( 1.0, 1.0, 0.0, 1.0 ),  // yellow
-    vec4( 0.0, 1.0, 0.0, 1.0 ),  // green
-    vec4( 0.0, 0.0, 1.0, 1.0 ),  // blue
-    vec4( 1.0, 0.0, 1.0, 1.0 ),  // magenta
-    vec4( 0.0, 1.0, 1.0, 1.0 ),  // cyan
-    vec4( 1.0, 1.0, 1.0, 1.0 )   // white
+    vec4( 0.0, 0.0, 0.0, 1.0 ),  
+    vec4( 0.75, 0.5, 0.25, 1.0 ),  
+    vec4( 0.35, 0.0, 0.8, 1.0 ),  
+    vec4( 0.0, 0.9, 0.4, 1.0 ),  
+    vec4( 0.8, 0.3, 0.0, 1.0 ),  
+    vec4( 0.85, 0.75, 0.0, 1.0),  
+    vec4( 0.8, 0.9, 0.0, 1.0 ),  
+    vec4( 0.0, 0.0, 0.0, 1.0 )   
   ];
 
 window.onload = function init()
@@ -59,9 +61,6 @@ window.onload = function init()
 
     gl.enable(gl.DEPTH_TEST);
 
-    //
-    //  Load shaders and initialize attribute buffers
-    //
     var program = initShaders( gl, "vertex-shader", "fragment-shader" );
     gl.useProgram( program );
 
@@ -81,8 +80,6 @@ window.onload = function init()
     var positionLoc = gl.getAttribLocation( program, "aPosition");
     gl.vertexAttribPointer(positionLoc, 4, gl.FLOAT, false, 0, 0);
     gl.enableVertexAttribArray(positionLoc );
-    
-    //gl.uniformMatrix4fv(rotationMatrixLoc, false, flatten(rotationMatrix));
 
     document.getElementById("settings").onclick = function() {
         var selectedOption = this.options[this.selectedIndex];
@@ -90,17 +87,29 @@ window.onload = function init()
 
         if(selectedOption.value == 1){
             status_u = 1;
+            color_select = 0;
             
         }
         else if(selectedOption.value == 2){
             status_u = 2;
+            color_select = 0;
         }
         else if(selectedOption.value == 3){
             status_u = 3;
+            color_select = 1;
         }
         else{
             status_u = 0;
-            
+            color_select = 0;
+        }
+
+        if(color_select == 0){
+            gl.bindBuffer(gl.ARRAY_BUFFER, cBuffer);
+            gl.bufferData(gl.ARRAY_BUFFER, flatten(colors), gl.STATIC_DRAW);
+        }
+        else{
+            gl.bindBuffer(gl.ARRAY_BUFFER, cBuffer);
+            gl.bufferData(gl.ARRAY_BUFFER, flatten(colors_interp), gl.STATIC_DRAW);
         }
     };
 
@@ -136,15 +145,11 @@ function quad(a, b, c, d)
 
     for ( var i = 0; i < indices.length; ++i ) {
         positions.push(vertices[indices[i]]);
-
-        if(status_u == 1){
-            // for interpolated colors use
-            colors.push(vertexColors[indices[i]]);  
-        }
-        else{
-            // for solid colored faces use
-            colors.push(vertexColors[a]);
-        }
+        // for interpolated colors use
+        colors_interp.push(vertexColors[indices[i]]);  
+        // for solid colored faces use
+        colors.push(vertexColors[a]);
+    
     }
 }
 
@@ -180,7 +185,7 @@ function render() {
         for (var i = 0; i < positions.length; i += 4) {
             gl.drawArrays(gl.TRIANGLE_FAN, i, 4);
         }
-    } else if (status_u == 2) {
+    } else if (status_u == 2 || status_u == 3) {
         // Center scaled cube
         var s = scale(0.25, 0.25, 0.25);
         m_Matrix = mult(m_Matrix, r);
@@ -198,41 +203,48 @@ function render() {
             vec3(-0.25, -0.25, 0.0)
         ];
 
-    // Define a separate scaling factor for the additional cubes
-    var additionalCubeScale = scale(0.1, 0.1, 0.1);
+        var sep_scales = [
+            vec3(0.15, 0.25, 0.25),
+            vec3(0.2, 0.05, 0.0),
+            vec3(0.04, 0.04, 0.04),
+            vec3(0.03, 0.04, 0.0)
+        ];
 
-    // Render additional cubes
-    for (var j = 0; j < additionalCubes.length; j++) {
-        var orbit = rotate(orbit_angle, orbit_axis);
+        // Define a separate scaling factor for the additional cubes
+        //var additionalCubeScale = scale(0.1, 0.1, 0.1);
 
-        // Reset model matrix to identity
-        var cubeMatrix = mat4();
+        // Render additional cubes
+        for (var j = 0; j < additionalCubes.length; j++) {
+            var orbit = rotate(orbit_angle, orbit_axis);
 
-        // Apply rotation around the center cube (orbit)
-        cubeMatrix = mult(cubeMatrix, orbit);
+            // Reset model matrix to identity
+            var cubeMatrix = mat4();
 
-        // Apply translation to position the cube
-        var translation = translate(additionalCubes[j][0], additionalCubes[j][1], additionalCubes[j][2]);
-        cubeMatrix = mult(cubeMatrix, translation);
+            // Apply rotation around the center cube (orbit)
+            cubeMatrix = mult(cubeMatrix, orbit);
 
-        // Apply separate scaling for the additional cubes
-        cubeMatrix = mult(cubeMatrix, additionalCubeScale);
+            // Apply translation to position the cube
+            var translation = translate(additionalCubes[j][0], additionalCubes[j][1], additionalCubes[j][2]);
+            cubeMatrix = mult(cubeMatrix, translation);
 
-        // Apply rotation around their own axes
-        var selfRotation = rotate(angle, vec3(1, 1, 0)); // Rotate around the diagonal axis
-        cubeMatrix = mult(cubeMatrix, selfRotation);
+            // Apply separate scaling for the additional cubes
+            cubeMatrix = mult(cubeMatrix, scale(sep_scales[j][0], sep_scales[j][1], sep_scales[j][2]));
 
-        // Pass the transformation matrix to the shader for the additional cube
-        gl.uniformMatrix4fv(MatrixLoc, false, flatten(cubeMatrix));
+            // Apply rotation around their own axes
+            var selfRotation = rotate(angle, vec3(1, 1, 0)); // Rotate around the diagonal axis
+            cubeMatrix = mult(cubeMatrix, selfRotation);
 
-        // Draw the additional cube
-        for (var i = 0; i < positions.length; i += 4) {
-            gl.drawArrays(gl.TRIANGLE_FAN, i, 4);
+            // Pass the transformation matrix to the shader for the additional cube
+            gl.uniformMatrix4fv(MatrixLoc, false, flatten(cubeMatrix));
+
+            // Draw the additional cube
+            for (var i = 0; i < positions.length; i += 4) {
+                gl.drawArrays(gl.TRIANGLE_FAN, i, 4);
+            }
         }
     }
-}
 
-requestAnimationFrame(render);
+    requestAnimationFrame(render);
 }
 
 // Call this function to start the rendering
