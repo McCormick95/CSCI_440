@@ -30,6 +30,8 @@ var m;
 var red;
 var black;
 
+var x_adj;
+
 
 window.onload = function init() {
     canvas = document.getElementById("gl-canvas");
@@ -93,6 +95,27 @@ window.onload = function init() {
     projectionMatrix = ortho(left, right, bottom, top, near, far);
     gl.uniformMatrix4fv(projectionMatrixLoc, false, flatten(projectionMatrix));
 
+
+    document.getElementById("+X").onclick = function(){
+        eye[0] += 0.25;
+    };
+    document.getElementById("-X").onclick = function(){
+        eye[0] -= 0.25;
+    };
+    document.getElementById("+Y").onclick = function(){
+        eye[2] += 0.25;
+    };
+    document.getElementById("-Y").onclick = function(){
+        eye[2] -= 0.25;
+    };
+    document.getElementById("+Z").onclick = function(){
+        eye[3] += 0.25;
+    };
+    document.getElementById("-Z").onclick = function(){
+        eye[3] -= 0.25;
+    };
+
+
     render();
 
 }
@@ -119,7 +142,6 @@ var render = function() {
 
         light[0] = Math.sin(theta);
         light[2] = Math.cos(theta);
-
 
         modelViewMatrix = mult(modelViewMatrix, translate(light[0], light[1], light[2]));
 
