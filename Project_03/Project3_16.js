@@ -10,7 +10,6 @@ var index = 0;
 var positionsArray = [];
 var normalsArray = [];
 
-
 var near = -10;
 var far = 10;
 var radius = 1.5;
@@ -159,7 +158,6 @@ window.onload = function init() {
         }
         materialDiffuse = mult(lightDiffuse, materialDiffuse);
         updateDiffuseProduct(materialDiffuse);
-        // gl.uniform4fv(gl.getUniformLocation(program,"uDiffuseProduct"),flatten(diffuseProduct));
     };
     // Power Surge
     document.getElementById("Button1").onclick = function(){
@@ -179,7 +177,6 @@ window.onload = function init() {
 
     gl.uniform4fv(gl.getUniformLocation(program,"uAmbientProduct"),flatten(ambientProduct));
     updateDiffuseProduct(materialDiffuse);
-    //gl.uniform4fv(gl.getUniformLocation(program,"uDiffuseProduct"),flatten(diffuseProduct));
     gl.uniform4fv(gl.getUniformLocation(program,"uSpecularProduct"),flatten(specularProduct));
     gl.uniform4fv(gl.getUniformLocation(program,"uLightPosition"),flatten(lightPosition));
     gl.uniform1f(gl.getUniformLocation(program,"uShininess"),materialShininess);
@@ -195,7 +192,6 @@ function updateDiffuseProduct(defuse) {
 function power_surge(){
     var color_temp = materialDiffuse;
     if (power_surge_status) {
-        console.log("------------------------------");
 
         color_temp[0] += pulse_speed * pulse_toggle; 
         color_temp[1] += pulse_speed * pulse_toggle;
@@ -217,14 +213,8 @@ function power_surge(){
             pulse_toggle *= -1;
         }
 
-        console.log(r_max, g_max, b_max);
-        console.log(color_temp[0], color_temp[1], color_temp[2]);
-        console.log(pulse_toggle);
-
         updateDiffuse = vec4(color_temp[0], color_temp[1], color_temp[2], 1.0);
 
-        console.log(updateDiffuse[0], updateDiffuse[1], updateDiffuse[2]);
-        console.log("------------------------------");
         updateDiffuseProduct(updateDiffuse); 
         
         requestAnimationFrame(power_surge);
