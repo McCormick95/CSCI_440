@@ -34,7 +34,7 @@ var lightDiffuse = vec4(1.0, 1.0, 1.0, 1.0);
 var lightSpecular = vec4(1.0, 1.0, 1.0, 1.0);
 
 var materialAmbient = vec4(1.0, 0.0, 1.0, 1.0);
-var materialDiffuse = vec4(0.0, 0.7, 0.7, 1.0);
+var materialDiffuse = vec4(0.0, 0.7, 0.3, 1.0);
 var materialSpecular = vec4(1.0, 1.0, 1.0, 1.0);
 var materialShininess = 20.0;
 
@@ -44,6 +44,8 @@ var ambientColor, diffuseColor, specularColor;
 var modelViewMatrix, projectionMatrix;
 var modelViewMatrixLoc, projectionMatrixLoc;
 
+var ambientProduct, diffuseProduct, specularProduct;
+
 var nMatrix, nMatrixLoc;
 
 var eye;
@@ -51,26 +53,29 @@ var at = vec3(0.0, 0.0, 0.0);
 var up = vec3(0.0, 1.0, 0.0);
 
 var color_toggle = 0;
-var color_one = vec4(0.0, 0.7, 0.7, 1.0);
-var color_two = vec4(0.4, 0.8, 0.4, 1.0);
 
+var color_one = vec4(0.8, 0.2, 0.4, 1.0);
+var color_two = vec4(0.0, 0.7, 0.3, 1.0);
+
+var power_surge_status = false;
+var pulse_speed = 0.1;
+var pulse_toggle = 1;
+var r_max, g_max, b_max;
+var updateDiffuse;
 
 function triangle(a, b, c) {
-
      positionsArray.push(a);
      positionsArray.push(b);
      positionsArray.push(c);
 
-          // normals are vectors
+    // normals are vectors
 
      normalsArray.push(vec4(a[0],a[1], a[2], 0.0));
      normalsArray.push(vec4(b[0],b[1], b[2], 0.0));
      normalsArray.push(vec4(c[0],c[1], c[2], 0.0));
 
-
      index += 3;
 }
-
 
 function divideTriangle(a, b, c, count) {
     if (count > 0) {
@@ -93,7 +98,6 @@ function divideTriangle(a, b, c, count) {
     }
 }
 
-
 function tetrahedron(a, b, c, d, n) {
     divideTriangle(a, b, c, n);
     divideTriangle(d, c, b, n);
@@ -108,23 +112,18 @@ window.onload = function init() {
     gl = canvas.getContext('webgl2');
     if (!gl) alert("WebGL 2.0 isn't available");
 
-
     gl.viewport(0, 0, canvas.width, canvas.height);
     gl.clearColor(0.0, 0.0, 0.0, 1.0);
 
     gl.enable(gl.DEPTH_TEST);
 
-    //
     // Load shaders and initialize attribute buffers
-    //
     var program = initShaders(gl, "vertex-shader", "fragment-shader");
     gl.useProgram(program);
 
-
-    var ambientProduct = mult(lightAmbient, materialAmbient);
-    var diffuseProduct = mult(lightDiffuse, materialDiffuse);
-    var specularProduct = mult(lightSpecular, materialSpecular);
-
+    ambientProduct = mult(lightAmbient, materialAmbient);
+    diffuseProduct = mult(lightDiffuse, materialDiffuse);
+    specularProduct = mult(lightSpecular, materialSpecular);
 
     tetrahedron(va, vb, vc, vd, numTimesToSubdivide);
 
@@ -149,23 +148,7 @@ window.onload = function init() {
     projectionMatrixLoc = gl.getUniformLocation(program, "uProjectionMatrix");
     nMatrixLoc = gl.getUniformLocation(program, "uNormalMatrix");
 
-
-
-// • Awakening – The creature begins to stir. Implement a color change effect that toggles between
-//      two distinct colors, representing the creature's growing awareness. 
-//      The button should switch between these colors when pressed.
-
-// • Power Surge – The creature's energy builds. Implement a pulsing effect where the color
-//      components of the material’s diffuse values increase/decrease between the maximum/minimum. 
-//      The button should toggle the pulsing on and off.
-
-// • Seeking Light – The creature starts following an external energy source. Implement a light that
-//      moves back and forth, affecting how the spheres are illuminated. 
-//      The button should pause and resume the movement of the light.
-
-// • Focused Gaze – The creature's eyes slowly open and close in a narrowing fashion, simulating
-//      focus or concentration. The button should toggle this effect
-
+    // Awakening
     document.getElementById("Button0").onclick = function(){
         if (color_toggle == 0){
             materialDiffuse = color_two;
@@ -174,19 +157,29 @@ window.onload = function init() {
             materialDiffuse = color_one;
             color_toggle = 0;
         }
-        diffuseProduct = mult(lightDiffuse, materialDiffuse);
-        gl.uniform4fv(gl.getUniformLocation(program,"uDiffuseProduct"),flatten(diffuseProduct));
+        materialDiffuse = mult(lightDiffuse, materialDiffuse);
+        updateDiffuseProduct(materialDiffuse);
+        // gl.uniform4fv(gl.getUniformLocation(program,"uDiffuseProduct"),flatten(diffuseProduct));
     };
-    document.getElementById("Button1").onclick = function(){radius *= 0.5;};
-    document.getElementById("Button2").onclick = function(){theta += dr;};
-    document.getElementById("Button3").onclick = function(){theta -= dr;};
-    document.getElementById("Button4").onclick = function(){phi += dr;};
-    document.getElementById("Button5").onclick = function(){phi -= dr;};
+    // Power Surge
+    document.getElementById("Button1").onclick = function(){
+        power_surge_status = !power_surge_status;
+        power_surge();
+        
+    };
+    // Seeking Light
+    document.getElementById("Button2").onclick = function(){
+    
+    };
+    // Focused Gaze
+    document.getElementById("Button3").onclick = function(){
 
+    };
 
 
     gl.uniform4fv(gl.getUniformLocation(program,"uAmbientProduct"),flatten(ambientProduct));
-    gl.uniform4fv(gl.getUniformLocation(program,"uDiffuseProduct"),flatten(diffuseProduct));
+    updateDiffuseProduct(materialDiffuse);
+    //gl.uniform4fv(gl.getUniformLocation(program,"uDiffuseProduct"),flatten(diffuseProduct));
     gl.uniform4fv(gl.getUniformLocation(program,"uSpecularProduct"),flatten(specularProduct));
     gl.uniform4fv(gl.getUniformLocation(program,"uLightPosition"),flatten(lightPosition));
     gl.uniform1f(gl.getUniformLocation(program,"uShininess"),materialShininess);
@@ -194,22 +187,77 @@ window.onload = function init() {
     render();
 }
 
-// Define the positions for two spheres
-var sphere1Position = vec3(-1.5, 0, 0);  // Left sphere
-var sphere2Position = vec3(1.5, 0, 0);   // Right sphere
+function updateDiffuseProduct(defuse) {
+    diffuseProduct = mult(lightDiffuse, defuse);
+    gl.uniform4fv(gl.getUniformLocation(gl.getParameter(gl.CURRENT_PROGRAM), "uDiffuseProduct"), flatten(diffuseProduct));
+}
 
+function power_surge(){
+    var color_temp = materialDiffuse;
+    if (power_surge_status) {
+        console.log("------------------------------");
+
+        color_temp[0] += pulse_speed * pulse_toggle; 
+        color_temp[1] += pulse_speed * pulse_toggle;
+        color_temp[2] += pulse_speed * pulse_toggle;
+
+        color_temp[0] = Math.round(color_temp[0] * 10) / 10;  
+        color_temp[1] = Math.round(color_temp[1] * 10) / 10;
+        color_temp[2] = Math.round(color_temp[2] * 10) / 10;
+
+        r_max = Math.min(1.0, color_temp[0]);
+        g_max = Math.min(1.0, color_temp[1]);
+        b_max = Math.min(1.0, color_temp[2]);
+
+        color_temp[0] = Math.max(0.0, r_max);
+        color_temp[1] = Math.max(0.0, g_max);
+        color_temp[2] = Math.max(0.0, b_max);
+
+        if(color_temp[1] == 1.00 || color_temp[1] == 0.0 || color_temp[2] == 1.0 || color_temp[2] == 0.0 || color_temp[0] == 1.0 || color_temp[0] == 0.0){
+            pulse_toggle *= -1;
+        }
+
+        console.log(r_max, g_max, b_max);
+        console.log(color_temp[0], color_temp[1], color_temp[2]);
+        console.log(pulse_toggle);
+
+        updateDiffuse = vec4(color_temp[0], color_temp[1], color_temp[2], 1.0);
+
+        console.log(updateDiffuse[0], updateDiffuse[1], updateDiffuse[2]);
+        console.log("------------------------------");
+        updateDiffuseProduct(updateDiffuse); 
+        
+        requestAnimationFrame(power_surge);
+    }
+    else{
+        return;
+    }
+}
+
+// Define the positions for two spheres
+var position_1 = vec3(-1.5, 0, 0);  // Left sphere
+var position_2 = vec3(1.5, 0, 0);   // Right sphere
 
 function render() {
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
-    eye = vec3(radius * Math.sin(theta) * Math.cos(phi),
-        radius * Math.sin(theta) * Math.sin(phi), radius * Math.cos(theta));
+    phi = dr;
+    
+    // Render spheres
+    render_sphere(position_1);
+    render_sphere(position_2);
+
+    requestAnimationFrame(render);
+}
+
+function render_sphere(position){
+    var sphere_position = position;
+    eye = vec3(radius * Math.sin(theta) * Math.cos(phi), radius * Math.sin(theta) * Math.sin(phi), radius * Math.cos(theta));
 
     var viewMatrix = lookAt(eye, at, up);
     projectionMatrix = ortho(left, right, bottom, ytop, near, far);
 
-    // Render first sphere
-    var modelMatrix1 = translate(sphere1Position[0], sphere1Position[1], sphere1Position[2]);
+    var modelMatrix1 = translate(sphere_position[0], sphere_position[1], sphere_position[2]);
     modelViewMatrix = mult(viewMatrix, modelMatrix1);
     nMatrix = normalMatrix(modelViewMatrix, true);
 
@@ -220,19 +268,4 @@ function render() {
     for (var i = 0; i < index; i += 3){
         gl.drawArrays(gl.TRIANGLES, i, 3);
     }
-
-    // Render second sphere
-    var modelMatrix2 = translate(sphere2Position[0], sphere2Position[1], sphere2Position[2]);
-    modelViewMatrix = mult(viewMatrix, modelMatrix2);
-    nMatrix = normalMatrix(modelViewMatrix, true);
-
-    gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(modelViewMatrix));
-    gl.uniformMatrix4fv(projectionMatrixLoc, false, flatten(projectionMatrix));
-    gl.uniformMatrix3fv(nMatrixLoc, false, flatten(nMatrix));
-
-    for (var i = 0; i < index; i += 3){
-        gl.drawArrays(gl.TRIANGLES, i, 3);
-    }
-
-    requestAnimationFrame(render);
 }
