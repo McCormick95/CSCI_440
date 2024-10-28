@@ -173,6 +173,10 @@ window.onload = function init() {
         focus_gaze();
     };
 
+    // document.getElementById("slider1").onchange = function(event) {
+    //     materialShininess = event.target.value; // get values from slider
+    // };
+
     gl.uniform4fv(gl.getUniformLocation(program,"uAmbientProduct"),flatten(ambientProduct));
     updateDiffuseProduct(materialDiffuse);
     gl.uniform4fv(gl.getUniformLocation(program,"uSpecularProduct"),flatten(specularProduct));
@@ -307,7 +311,11 @@ function render() {
 function render_sphere(position){
     var sphere_position = position;
     eye = vec3(radius * Math.sin(theta) * Math.cos(phi), radius * Math.sin(theta) * Math.sin(phi), radius * Math.cos(theta));
-
+    
+    // rectangular = eye=vec3(1, 1, 1)
+    // eye = location of the camera
+    // at = object that is being viewed, typically at the origin
+    // up = is the orientaton of the camera
     var viewMatrix = lookAt(eye, at, up);
     projectionMatrix = ortho(left, right, bottom, ytop, near, far);
 
