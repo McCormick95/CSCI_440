@@ -192,6 +192,8 @@ window.onload = function init() {
                 break;
             case 4:
                 reset_drone = true;
+                scan_1 = false;
+                scan_2 = false;
                 zoom_in = false;
                 zoom_out = false;
                 break;
