@@ -91,13 +91,6 @@ window.onload = function init() {
     colorsArray.push(vec4(0.0, 0.0, 0.0, 1.0));   // Blue for bottom-left
     colorsArray.push(vec4(0.0, 0.0, 0.0, 1.0));// Yellow for bottom-right
 
-    /*quad()
-    function quad() {
-        for (var i = 0; i < vertexColors.length; i++){
-            colorsArray.push(vertexColors[i])
-        }
-    }
-    */
     //  Load shaders and initialize attribute buffers
     var program = initShaders(gl, "vertex-shader", "fragment-shader");
     gl.useProgram(program);
