@@ -59,6 +59,12 @@ var modelViewMatrixLoc;
 
 var vBuffer, cBuffer;
 
+
+// MY VARIABLES --------------------------------------------------------------
+var base_status = false;
+var lower_arm_status = false;
+var upper_arm_status = false;
+
 //----------------------------------------------------------------------------
 
 function quad(  a,  b,  c,  d ) {
@@ -134,14 +140,24 @@ window.onload = function init() {
     gl.vertexAttribPointer( colorLoc, 4, gl.FLOAT, false, 0, 0 );
     gl.enableVertexAttribArray( colorLoc );
 
-    document.getElementById("slider1").onchange = function(event) {
-        theta[0] = event.target.value;
+    // document.getElementById("slider1").onchange = function(event) {
+    //     theta[0] = event.target.value;
+    // };
+    // document.getElementById("slider2").onchange = function(event) {
+    //      theta[1] = event.target.value;
+    // };
+    // document.getElementById("slider3").onchange = function(event) {
+    //      theta[2] =  event.target.value;
+    // };
+
+    document.getElementById("base").onclick = function () {
+        base_status = !base_status;
     };
-    document.getElementById("slider2").onchange = function(event) {
-         theta[1] = event.target.value;
+    document.getElementById("lower_arm").onclick = function () {
+        lower_arm_status = !lower_arm_status;
     };
-    document.getElementById("slider3").onchange = function(event) {
-         theta[2] =  event.target.value;
+    document.getElementById("upper_arm").onclick = function () {
+        upper_arm_status = !upper_arm_status;
     };
 
     modelViewMatrixLoc = gl.getUniformLocation(program, "modelViewMatrix");
@@ -209,11 +225,33 @@ function lowerArm()
 }
 
 //----------------------------------------------------------------------------
-
+var base_toggle = 1;
+var lower_arm_toggle = 1;
+var upper_arm_toggle = 1;
 
 var render = function() {
 
     gl.clear( gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT );
+
+    if(base_status){
+        theta[Base] = (theta[Base] + 2.5);
+
+    }
+    if(lower_arm_status){
+        theta[LowerArm] = (theta[LowerArm] + (1*lower_arm_toggle));
+
+        if(theta[LowerArm] >= 45 || theta[LowerArm] <= -45){
+            lower_arm_toggle *= -1;
+        }
+    }
+    if(upper_arm_status){
+        theta[UpperArm] = (theta[UpperArm] + (2*upper_arm_toggle));
+
+        if(theta[UpperArm] >= 90 || theta[UpperArm] <= -90){
+            upper_arm_toggle *= -1;
+        }
+    }
+
 
     modelViewMatrix = rotate(theta[Base], vec3(0, 1, 0 ));
     base();
