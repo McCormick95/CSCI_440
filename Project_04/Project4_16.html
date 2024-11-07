@@ -2,59 +2,66 @@
 <html>
 
 <script id="vertex-shader" type="x-shader/x-vertex">
-#version 300 es
+    #version 300 es
 
-in vec4 aPosition;
-in vec3 aNormal;
-uniform mat4 modelViewMatrix;
-uniform mat4 projectionMatrix;
-uniform vec4 uLightPosition;
-
-out vec3 N, L, E;
-
-void main() {
-    vec3 pos = (modelViewMatrix * aPosition).xyz;
+    in  vec4 aPosition;
+    in  vec3 aNormal;
+    out vec4 vColor;
     
-    // Transform vertex normal into eye coordinates
-    N = normalize((modelViewMatrix * vec4(aNormal, 0.0)).xyz);
+    uniform vec4 uAmbientProduct, uDiffuseProduct, uSpecularProduct;
+    uniform mat4 uModelViewMatrix;
+    uniform mat4 uProjectionMatrix;
+    uniform vec4 uLightPosition;
+    uniform float uShininess;
     
-    // Vector from vertex to light
-    L = normalize(uLightPosition.xyz - pos);
+    void main()
+    {
+        // Transform vertex position into eye coordinates
+        vec3 pos = -(uModelViewMatrix * aPosition).xyz;
     
-    // Vector from vertex to viewer (assume viewer at origin)
-    E = -normalize(pos);
+        // Fixed light position
+        vec3 light = uLightPosition.xyz;
+        vec3 L = normalize(light - pos);
     
-    gl_Position = projectionMatrix * modelViewMatrix * aPosition;
-}
+        // Eye vector
+        vec3 E = normalize(-pos);
+        vec3 H = normalize(L + E);
+    
+        // Transform vertex normal into eye coordinates
+        vec4 NN = vec4(aNormal,0);
+        vec3 N = normalize((uModelViewMatrix*NN).xyz);
+    
+        // Compute terms in the illumination equation
+        vec4 ambient = uAmbientProduct;
+    
+        float Kd = max(dot(L, N), 0.0);
+        vec4 diffuse = Kd*uDiffuseProduct;
+    
+        float Ks = pow(max(dot(N, H), 0.0), uShininess);
+        vec4 specular = Ks * uSpecularProduct;
+    
+        if(dot(L, N) < 0.0) {
+            specular = vec4(0.0, 0.0, 0.0, 1.0);
+        }
+    
+        gl_Position = uProjectionMatrix * uModelViewMatrix * aPosition;
+        vColor = ambient + diffuse + specular;
+        vColor.a = 1.0;
+    }
 </script>
-
+    
 <script id="fragment-shader" type="x-shader/x-fragment">
-#version 300 es
-
-precision mediump float;
-
-uniform vec4 uAmbientProduct, uDiffuseProduct, uSpecularProduct;
-uniform float uShininess;
-
-in vec3 N, L, E;
-out vec4 fragColor;
-
-void main() {
-    vec3 H = normalize(L + E);
+    #version 300 es
     
-    vec4 ambient = uAmbientProduct;
+    precision mediump float;
     
-    float Kd = max(dot(L, N), 0.0);
-    vec4 diffuse = Kd * uDiffuseProduct;
+    in vec4 vColor;
+    out vec4 fColor;
     
-    float Ks = pow(max(dot(N, H), 0.0), uShininess);
-    vec4 specular = Ks * uSpecularProduct;
-    
-    if(dot(L, N) < 0.0) specular = vec4(0.0, 0.0, 0.0, 1.0);
-    
-    fragColor = ambient + diffuse + specular;
-    fragColor.a = 1.0;
-}
+    void main()
+    {
+        fColor = vColor;
+    }
 </script>
 
 <script type="text/javascript" src="../Common/InitShaders.js"></script>

@@ -15,8 +15,8 @@ var materialDiffuse = vec4(1.0, 0.8, 0.0, 1.0);
 var materialSpecular = vec4(1.0, 0.8, 0.0, 1.0);
 var materialShininess = 100.0;
 
-var projectionMatrix;
-var modelViewMatrix;
+var uProjectionMatrix;
+var uModelViewMatrix;
 var instanceMatrix;
 var modelViewMatrixLoc;
 
@@ -164,79 +164,79 @@ function initNodes(Id) {
 
 function traverse(Id) {
     if (Id == null) return;
-    stack.push(modelViewMatrix);
-    modelViewMatrix = mult(modelViewMatrix, figure[Id].transform);
+    stack.push(uModelViewMatrix);
+    uModelViewMatrix = mult(uModelViewMatrix, figure[Id].transform);
     figure[Id].render();
     if (figure[Id].child != null) traverse(figure[Id].child);
-    modelViewMatrix = stack.pop();
+    uModelViewMatrix = stack.pop();
     if (figure[Id].sibling != null) traverse(figure[Id].sibling);
 }
 
 function torso() {
-    instanceMatrix = mult(modelViewMatrix, translate(0.0, 0.5 * torsoHeight, 0.0));
+    instanceMatrix = mult(uModelViewMatrix, translate(0.0, 0.5 * torsoHeight, 0.0));
     instanceMatrix = mult(instanceMatrix, scale4(torsoWidth, torsoHeight, torsoWidth));
-    gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(instanceMatrix));
+    gl.uniformMatrix4fv(gl.getUniformLocation(program, "uModelViewMatrix"), false, flatten(instanceMatrix));
     for (var i = 0; i < 6; i++) gl.drawArrays(gl.TRIANGLE_FAN, 4 * i, 4);
 }
 
 function head() {
-    instanceMatrix = mult(modelViewMatrix, translate(0.0, 0.5 * headHeight, 0.0));
+    instanceMatrix = mult(uModelViewMatrix, translate(0.0, 0.5 * headHeight, 0.0));
     instanceMatrix = mult(instanceMatrix, scale4(headWidth, headHeight, headWidth));
     gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(instanceMatrix));
     for (var i = 0; i < 6; i++) gl.drawArrays(gl.TRIANGLE_FAN, 4 * i, 4);
 }
 
 function leftUpperArm() {
-    instanceMatrix = mult(modelViewMatrix, translate(0.0, 0.5 * upperArmHeight, 0.0));
+    instanceMatrix = mult(uModelViewMatrix, translate(0.0, 0.5 * upperArmHeight, 0.0));
     instanceMatrix = mult(instanceMatrix, scale4(upperArmWidth, upperArmHeight, upperArmWidth));
     gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(instanceMatrix));
     for (var i = 0; i < 6; i++) gl.drawArrays(gl.TRIANGLE_FAN, 4 * i, 4);
 }
 
 function leftLowerArm() {
-    instanceMatrix = mult(modelViewMatrix, translate(0.0, 0.5 * lowerArmHeight, 0.0));
+    instanceMatrix = mult(uModelViewMatrix, translate(0.0, 0.5 * lowerArmHeight, 0.0));
     instanceMatrix = mult(instanceMatrix, scale4(lowerArmWidth, lowerArmHeight, lowerArmWidth));
     gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(instanceMatrix));
     for (var i = 0; i < 6; i++) gl.drawArrays(gl.TRIANGLE_FAN, 4 * i, 4);
 }
 
 function rightUpperArm() {
-    instanceMatrix = mult(modelViewMatrix, translate(0.0, 0.5 * upperArmHeight, 0.0));
+    instanceMatrix = mult(uModelViewMatrix, translate(0.0, 0.5 * upperArmHeight, 0.0));
     instanceMatrix = mult(instanceMatrix, scale4(upperArmWidth, upperArmHeight, upperArmWidth));
     gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(instanceMatrix));
     for (var i = 0; i < 6; i++) gl.drawArrays(gl.TRIANGLE_FAN, 4 * i, 4);
 }
 
 function rightLowerArm() {
-    instanceMatrix = mult(modelViewMatrix, translate(0.0, 0.5 * lowerArmHeight, 0.0));
+    instanceMatrix = mult(uModelViewMatrix, translate(0.0, 0.5 * lowerArmHeight, 0.0));
     instanceMatrix = mult(instanceMatrix, scale4(lowerArmWidth, lowerArmHeight, lowerArmWidth));
     gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(instanceMatrix));
     for (var i = 0; i < 6; i++) gl.drawArrays(gl.TRIANGLE_FAN, 4 * i, 4);
 }
 
 function leftUpperLeg() {
-    instanceMatrix = mult(modelViewMatrix, translate(0.0, 0.5 * upperLegHeight, 0.0));
+    instanceMatrix = mult(uModelViewMatrix, translate(0.0, 0.5 * upperLegHeight, 0.0));
     instanceMatrix = mult(instanceMatrix, scale4(upperLegWidth, upperLegHeight, upperLegWidth));
     gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(instanceMatrix));
     for (var i = 0; i < 6; i++) gl.drawArrays(gl.TRIANGLE_FAN, 4 * i, 4);
 }
 
 function leftLowerLeg() {
-    instanceMatrix = mult(modelViewMatrix, translate(0.0, 0.5 * lowerLegHeight, 0.0));
+    instanceMatrix = mult(uModelViewMatrix, translate(0.0, 0.5 * lowerLegHeight, 0.0));
     instanceMatrix = mult(instanceMatrix, scale4(lowerLegWidth, lowerLegHeight, lowerLegWidth));
     gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(instanceMatrix));
     for (var i = 0; i < 6; i++) gl.drawArrays(gl.TRIANGLE_FAN, 4 * i, 4);
 }
 
 function rightUpperLeg() {
-    instanceMatrix = mult(modelViewMatrix, translate(0.0, 0.5 * upperLegHeight, 0.0));
+    instanceMatrix = mult(uModelViewMatrix, translate(0.0, 0.5 * upperLegHeight, 0.0));
     instanceMatrix = mult(instanceMatrix, scale4(upperLegWidth, upperLegHeight, upperLegWidth));
     gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(instanceMatrix));
     for (var i = 0; i < 6; i++) gl.drawArrays(gl.TRIANGLE_FAN, 4 * i, 4);
 }
 
 function rightLowerLeg() {
-    instanceMatrix = mult(modelViewMatrix, translate(0.0, 0.5 * lowerLegHeight, 0.0));
+    instanceMatrix = mult(uModelViewMatrix, translate(0.0, 0.5 * lowerLegHeight, 0.0));
     instanceMatrix = mult(instanceMatrix, scale4(lowerLegWidth, lowerLegHeight, lowerLegWidth));
     gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(instanceMatrix));
     for (var i = 0; i < 6; i++) gl.drawArrays(gl.TRIANGLE_FAN, 4 * i, 4);
@@ -296,13 +296,13 @@ window.onload = function init() {
 
     instanceMatrix = mat4();
 
-    projectionMatrix = ortho(-10.0, 10.0, -10.0, 10.0, -10.0, 10.0);
-    modelViewMatrix = mat4();
+    uProjectionMatrix = ortho(-10.0, 10.0, -10.0, 10.0, -10.0, 10.0);
+    uModelViewMatrix = mat4();
 
-    gl.uniformMatrix4fv(gl.getUniformLocation(program, "modelViewMatrix"), false, flatten(modelViewMatrix));
-    gl.uniformMatrix4fv(gl.getUniformLocation(program, "projectionMatrix"), false, flatten(projectionMatrix));
+    gl.uniformMatrix4fv(gl.getUniformLocation(program, "uModelViewMatrix"), false, flatten(uModelViewMatrix));
+    gl.uniformMatrix4fv(gl.getUniformLocation(program, "uProjectionMatrix"), false, flatten(uProjectionMatrix));
 
-    modelViewMatrixLoc = gl.getUniformLocation(program, "modelViewMatrix");
+    modelViewMatrixLoc = gl.getUniformLocation(program, "uModelViewMatrix");
 
     cube();
 
