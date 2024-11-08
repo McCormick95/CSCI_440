@@ -4,7 +4,6 @@ var canvas;
 var gl;
 var program;
 
-// Add lighting variables
 var lightPosition = vec4(-1.0, -2.0, 1.0, 0.0);
 var lightAmbient = vec4(0.2, 0.2, 0.2, 1.0);
 var lightDiffuse = vec4(1.0, 1.0, 1.0, 1.0);
@@ -268,7 +267,8 @@ function quad(a, b, c, d) {
     // Calculate and store normals
     var t1 = subtract(vertices[b], vertices[a]);
     var t2 = subtract(vertices[c], vertices[b]);
-    var normal = normalize(cross(t1, t2));
+    var normal = cross(t1, t2);
+    normal = vec3(normal);
 
     normalsArray.push(normal);
     normalsArray.push(normal);
