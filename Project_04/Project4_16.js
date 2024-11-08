@@ -285,9 +285,20 @@ function cube() {
     quad(5, 4, 0, 1);
 }
 
-function updateLighting() {
+function updateLighting(forFigure2 = false) {
+    // Define different diffuse colors for figure2
+    var figure2MaterialDiffuse = vec4(1.0, 0.0, 1.0, 1.0);  // Red color for figure2
+    
+    // Use regular if/else for setting diffuse material
+    var currentMaterialDiffuse;
+    if (forFigure2) {
+        currentMaterialDiffuse = figure2MaterialDiffuse;
+    } else {
+        currentMaterialDiffuse = materialDiffuse;
+    }
+    
     var ambientProduct = mult(lightAmbient, materialAmbient);
-    var diffuseProduct = mult(lightDiffuse, materialDiffuse);
+    var diffuseProduct = mult(lightDiffuse, currentMaterialDiffuse);  // Using the current diffuse
     var specularProduct = mult(lightSpecular, materialSpecular);
 
     gl.uniform4fv(gl.getUniformLocation(program, "uAmbientProduct"), flatten(ambientProduct));
@@ -387,9 +398,6 @@ window.onload = function init() {
         
     };
 
-     // Initialize lighting
-     updateLighting();
-
      for(var i = 0; i < numNodes; i++) {
         initNodes(i, figure1, theta1);
         initNodes(i, figure2, theta2, figure2PositionOffset);
@@ -400,10 +408,12 @@ window.onload = function init() {
 
 
 var render = function() {
-        gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);    
+        gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT); 
+
+        updateLighting(false); 
         traverse(torsoId, figure1);
     
-        // Draw second figure
+        updateLighting(true);
         traverse(torsoId, figure2);
 
         requestAnimationFrame(render);
