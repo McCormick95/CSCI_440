@@ -5,7 +5,7 @@ var gl;
 var program;
 
 // Add lighting variables
-var lightPosition = vec4(1.0, 1.0, 1.0, 0.0);
+var lightPosition = vec4(-1.0, -2.0, 1.0, 0.0);
 var lightAmbient = vec4(0.2, 0.2, 0.2, 1.0);
 var lightDiffuse = vec4(1.0, 1.0, 1.0, 1.0);
 var lightSpecular = vec4(1.0, 1.0, 1.0, 1.0);
@@ -353,7 +353,7 @@ window.onload = function init() {
     gl.enableVertexAttribArray(positionLoc);
 
     document.getElementById("B_1").onclick = function(){
-        theta1[torsoId ] += 1;
+        theta1[torsoId] += 1;
         theta1[head1Id] += 1;
         theta1[leftUpperArmId] += 1;
         theta1[leftLowerArmId] += 1;
@@ -365,7 +365,7 @@ window.onload = function init() {
         theta1[rightLowerLegId] += 1;
         theta1[head2Id] += 1;
 
-        theta2[torsoId ] += 1;
+        theta2[torsoId] += 1;
         theta2[head1Id] += 1;
         theta2[leftUpperArmId] += 1;
         theta2[leftLowerArmId] += 1;
@@ -410,7 +410,7 @@ window.onload = function init() {
 
     };
 
-    
+
     for(var i = 0; i < numNodes; i++) {
         initNodes(i, figure1, theta1);
         initNodes(i, figure2, theta2, figure2PositionOffset);
@@ -418,7 +418,6 @@ window.onload = function init() {
  
      render();
 }
-
 
 var render = function() {
         gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT); 
