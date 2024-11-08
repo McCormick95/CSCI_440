@@ -4,7 +4,7 @@ var canvas;
 var gl;
 var program;
 
-var lightPosition = vec4(-1.0, -2.0, 1.0, 0.0);
+var lightPosition = vec4(-1.0, -2.0, 3.0, 0.0);
 var lightAmbient = vec4(0.2, 0.2, 0.2, 1.0);
 var lightDiffuse = vec4(1.0, 1.0, 1.0, 1.0);
 var lightSpecular = vec4(1.0, 1.0, 1.0, 1.0);
@@ -73,7 +73,8 @@ for (var i = 0; i < numNodes; i++){
     figure2[i] = createNode(null, null, null, null);
 } 
 
-var figure2PositionOffset = vec3(5.0, -1.0, 0.0);
+var figure2PositionOffset = vec3(4.0, -1.0, 0.0);
+var figure1PositionOffset = vec3(-4.0, 0.0, 0.0);
 var figure2Scale = 0.8;
 
 var vBuffer;
@@ -105,9 +106,9 @@ function initNodes(Id, figureArray, thetaArray, positionOffset = vec3(0.0, 0.0, 
 
     var scaleFactor;
     if (figureArray === figure2) {
-        scaleFactor = figure2Scale;  // if it's figure2, use the larger scale
+        scaleFactor = figure2Scale;  
     } else {
-        scaleFactor = 1.0;  // if it's not figure2, use normal scale (1.0)
+        scaleFactor = 1.0;  
     }
 
     switch (Id) {
@@ -264,7 +265,6 @@ function quad(a, b, c, d) {
     pointsArray.push(vertices[c]);
     pointsArray.push(vertices[d]);
 
-    // Calculate and store normals
     var t1 = subtract(vertices[b], vertices[a]);
     var t2 = subtract(vertices[c], vertices[b]);
     var normal = cross(t1, t2);
@@ -286,10 +286,8 @@ function cube() {
 }
 
 function updateLighting(forFigure2 = false) {
-    // Define different diffuse colors for figure2
-    var figure2MaterialDiffuse = vec4(1.0, 0.0, 1.0, 1.0);  // Red color for figure2
+    var figure2MaterialDiffuse = vec4(1.0, 0.0, 1.0, 1.0); 
     
-    // Use regular if/else for setting diffuse material
     var currentMaterialDiffuse;
     if (forFigure2) {
         currentMaterialDiffuse = figure2MaterialDiffuse;
@@ -315,7 +313,7 @@ window.onload = function init() {
     if (!gl) { alert("WebGL 2.0 isn't available"); }
 
     gl.viewport(0, 0, canvas.width, canvas.height);
-    gl.clearColor(1.0, 1.0, 1.0, 1.0);
+    gl.clearColor(0.6, 0.7, 0.7, 1.0);
     
     gl.enable(gl.DEPTH_TEST);
 
@@ -365,21 +363,21 @@ window.onload = function init() {
         theta1[rightLowerLegId] += 1;
         theta1[head2Id] += 1;
 
-        theta2[torsoId] += 1;
-        theta2[head1Id] += 1;
-        theta2[leftUpperArmId] += 1;
-        theta2[leftLowerArmId] += 1;
-        theta2[rightUpperArmId] += 1;
-        theta2[rightLowerArmId] += 1;
-        theta2[leftUpperLegId] += 1;
-        theta2[leftLowerLegId] += 1;
-        theta2[rightUpperLegId] += 1;
-        theta2[rightLowerLegId] += 1;
-        theta2[head2Id] += 1;
+        theta2[torsoId] += 2;
+        theta2[head1Id] += 2;
+        theta2[leftUpperArmId] += 2;
+        theta2[leftLowerArmId] += 2;
+        theta2[rightUpperArmId] += 2;
+        theta2[rightLowerArmId] += 2;
+        theta2[leftUpperLegId] += 2;
+        theta2[leftLowerLegId] += 2;
+        theta2[rightUpperLegId] += 2;
+        theta2[rightLowerLegId] += 2;
+        theta2[head2Id] += 2;
 
-        // lightPosition[0] += 1;
-        // lightPosition[1] += 1;
-        // lightPosition[2] += 1;
+        // lightPosition[0] += 5;
+        // lightPosition[1] += 5;
+        // lightPosition[2] += 5;
 
         // materialAmbient[0] += 1;
         // materialAmbient[1] += 1;
@@ -392,10 +390,9 @@ window.onload = function init() {
         // materialShininess += 1;
 
         for(var i = 0; i < numNodes; i++) {
-            initNodes(i, figure1, theta1);
+            initNodes(i, figure1, theta1, figure1PositionOffset);
             initNodes(i, figure2, theta2, figure2PositionOffset);
         }
-        
     };
 
     document.getElementById("B_2").onclick = function(){
@@ -410,23 +407,22 @@ window.onload = function init() {
 
     };
 
-
     for(var i = 0; i < numNodes; i++) {
-        initNodes(i, figure1, theta1);
+        initNodes(i, figure1, theta1, figure1PositionOffset);
         initNodes(i, figure2, theta2, figure2PositionOffset);
     }
  
-     render();
+    render();
 }
 
 var render = function() {
-        gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT); 
+    gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT); 
 
-        updateLighting(false); 
-        traverse(torsoId, figure1);
-    
-        updateLighting(true);
-        traverse(torsoId, figure2);
+    updateLighting(false); 
+    traverse(torsoId, figure1);
 
-        requestAnimationFrame(render);
+    updateLighting(true);
+    traverse(torsoId, figure2);
+
+    requestAnimationFrame(render);
 }
