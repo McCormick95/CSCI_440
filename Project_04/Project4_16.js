@@ -377,19 +377,19 @@ window.onload = function init() {
         theta2[rightLowerLegId] += 1;
         theta2[head2Id] += 1;
 
-        lightPosition[0] += 1;
-        lightPosition[1] += 1;
-        lightPosition[2] += 1;
+        // lightPosition[0] += 1;
+        // lightPosition[1] += 1;
+        // lightPosition[2] += 1;
 
-        materialAmbient[0] += 1;
-        materialAmbient[1] += 1;
-        materialAmbient[2] += 1;
+        // materialAmbient[0] += 1;
+        // materialAmbient[1] += 1;
+        // materialAmbient[2] += 1;
 
-        materialDiffuse[0] += 1;
-        materialDiffuse[1] += 1;
-        materialDiffuse[2] += 1;
+        // materialDiffuse[0] += 1;
+        // materialDiffuse[1] += 1;
+        // materialDiffuse[2] += 1;
 
-        materialShininess += 1;
+        // materialShininess += 1;
 
         for(var i = 0; i < numNodes; i++) {
             initNodes(i, figure1, theta1);
@@ -398,7 +398,20 @@ window.onload = function init() {
         
     };
 
-     for(var i = 0; i < numNodes; i++) {
+    document.getElementById("B_2").onclick = function(){
+
+    };
+
+    document.getElementById("B_3").onclick = function(){
+
+    };
+
+    document.getElementById("B_4").onclick = function(){
+
+    };
+
+    
+    for(var i = 0; i < numNodes; i++) {
         initNodes(i, figure1, theta1);
         initNodes(i, figure2, theta2, figure2PositionOffset);
     }
