@@ -1,5 +1,4 @@
 "use strict";
-
 var canvas;
 var gl;
 var program;
@@ -81,7 +80,7 @@ var vBuffer;
 var modelViewLoc;
 
 var pointsArray = [];
-var normalsArray = []; // Add normal array for lighting calculations
+var normalsArray = []; 
 
 function scale4(a, b, c) {
     var result = mat4();
@@ -113,9 +112,10 @@ function initNodes(Id, figureArray, thetaArray, positionOffset = vec3(0.0, 0.0, 
 
     switch (Id) {
         case torsoId:
-            m = translate(positionOffset[0], positionOffset[1], positionOffset[2]);  // Apply offset first
+            m = translate(positionOffset[0], positionOffset[1], positionOffset[2]);  
             m = mult(m, rotate(thetaArray[torsoId], vec3(0, 1, 0)));
             m = mult(m, scale4(scaleFactor, scaleFactor, scaleFactor));
+            //m = mult(m, scale(torsoWidth, torsoHeight, torsoWidth));
             figureArray[torsoId] = createNode(m, torso, null, headId);
             break;
 
@@ -184,9 +184,9 @@ function traverse(Id, figureArray) {
     stack.push(uModelViewMatrix);
     uModelViewMatrix = mult(uModelViewMatrix, figureArray[Id].transform);
     figureArray[Id].render();
-    if (figureArray[Id].child != null) traverse(figureArray[Id].child, figureArray);  // Pass figureArray
+    if (figureArray[Id].child != null) traverse(figureArray[Id].child, figureArray);  
     uModelViewMatrix = stack.pop();
-    if (figureArray[Id].sibling != null) traverse(figureArray[Id].sibling, figureArray);  // Pass figureArray
+    if (figureArray[Id].sibling != null) traverse(figureArray[Id].sibling, figureArray);  
 }
 
 function torso() {
@@ -296,7 +296,7 @@ function updateLighting(forFigure2 = false) {
     }
     
     var ambientProduct = mult(lightAmbient, materialAmbient);
-    var diffuseProduct = mult(lightDiffuse, currentMaterialDiffuse);  // Using the current diffuse
+    var diffuseProduct = mult(lightDiffuse, currentMaterialDiffuse); 
     var specularProduct = mult(lightSpecular, materialSpecular);
 
     gl.uniform4fv(gl.getUniformLocation(program, "uAmbientProduct"), flatten(ambientProduct));
@@ -332,7 +332,6 @@ window.onload = function init() {
 
     cube();
 
-    // Create and bind normal buffer
     var nBuffer = gl.createBuffer();
     gl.bindBuffer(gl.ARRAY_BUFFER, nBuffer);
     gl.bufferData(gl.ARRAY_BUFFER, flatten(normalsArray), gl.STATIC_DRAW);
@@ -341,7 +340,6 @@ window.onload = function init() {
     gl.vertexAttribPointer(normalLoc, 3, gl.FLOAT, false, 0, 0);
     gl.enableVertexAttribArray(normalLoc);
 
-    // Create and bind vertex buffer
     vBuffer = gl.createBuffer();
     gl.bindBuffer(gl.ARRAY_BUFFER, vBuffer);
     gl.bufferData(gl.ARRAY_BUFFER, flatten(pointsArray), gl.STATIC_DRAW);
@@ -351,30 +349,8 @@ window.onload = function init() {
     gl.enableVertexAttribArray(positionLoc);
 
     document.getElementById("B_1").onclick = function(){
-        theta1[torsoId] += 1;
-        theta1[head1Id] += 1;
-        theta1[leftUpperArmId] += 1;
-        theta1[leftLowerArmId] += 1;
-        theta1[rightUpperArmId] += 1;
-        theta1[rightLowerArmId] += 1;
-        theta1[leftUpperLegId] += 1;
-        theta1[leftLowerLegId] += 1;
-        theta1[rightUpperLegId] += 1;
-        theta1[rightLowerLegId] += 1;
-        theta1[head2Id] += 1;
-
-        theta2[torsoId] += 2;
-        theta2[head1Id] += 2;
-        theta2[leftUpperArmId] += 2;
-        theta2[leftLowerArmId] += 2;
-        theta2[rightUpperArmId] += 2;
-        theta2[rightLowerArmId] += 2;
-        theta2[leftUpperLegId] += 2;
-        theta2[leftLowerLegId] += 2;
-        theta2[rightUpperLegId] += 2;
-        theta2[rightLowerLegId] += 2;
-        theta2[head2Id] += 2;
-
+        stateOne();
+        
         // lightPosition[0] += 5;
         // lightPosition[1] += 5;
         // lightPosition[2] += 5;
@@ -407,6 +383,8 @@ window.onload = function init() {
 
     };
 
+    setInitialState();
+
     for(var i = 0; i < numNodes; i++) {
         initNodes(i, figure1, theta1, figure1PositionOffset);
         initNodes(i, figure2, theta2, figure2PositionOffset);
@@ -425,4 +403,67 @@ var render = function() {
     traverse(torsoId, figure2);
 
     requestAnimationFrame(render);
+}
+
+
+var setInitialState = function() {
+    theta1[torsoId] = 45;
+    theta1[head1Id] = 0;
+    theta1[leftUpperArmId] = 180;
+    theta1[leftLowerArmId] = 90;
+    theta1[rightUpperArmId] = 180;
+    theta1[rightLowerArmId] = 90;
+    theta1[leftUpperLegId] = 180;
+    theta1[leftLowerLegId] = 0;
+    theta1[rightUpperLegId] = 180;
+    theta1[rightLowerLegId] = 0;
+    theta1[head2Id] = 0;
+
+    theta2[torsoId] = 45;
+    theta2[head1Id] = 0;
+    theta2[leftUpperArmId] = 180;
+    theta2[leftLowerArmId] = 90;
+    theta2[rightUpperArmId] = 180;
+    theta2[rightLowerArmId] = 90;
+    theta2[leftUpperLegId] = 180;
+    theta2[leftLowerLegId] = 0;
+    theta2[rightUpperLegId] = 180;
+    theta2[rightLowerLegId] = 0;
+    theta2[head2Id] = 0;
+    
+    for(var i = 0; i < numNodes; i++) {
+        initNodes(i, figure1, theta1, figure1PositionOffset);
+        initNodes(i, figure2, theta2, figure2PositionOffset);
+    }
+}
+
+var stateOne = function() {
+    theta1[torsoId] = -25;
+    theta1[head1Id] = 0;
+    theta1[leftUpperArmId] = 180;
+    theta1[leftLowerArmId] = 90;
+    theta1[rightUpperArmId] = 180;
+    theta1[rightLowerArmId] = 90;
+    theta1[leftUpperLegId] = 180;
+    theta1[leftLowerLegId] = 0;
+    theta1[rightUpperLegId] = 180;
+    theta1[rightLowerLegId] = 0;
+    theta1[head2Id] = 0;
+
+    theta2[torsoId] = -25;
+    theta2[head1Id] = 0;
+    theta2[leftUpperArmId] = 180;
+    theta2[leftLowerArmId] = 90;
+    theta2[rightUpperArmId] = 180;
+    theta2[rightLowerArmId] = 90;
+    theta2[leftUpperLegId] = 180;
+    theta2[leftLowerLegId] = 0;
+    theta2[rightUpperLegId] = 180;
+    theta2[rightLowerLegId] = 0;
+    theta2[head2Id] = 0;
+    
+    for(var i = 0; i < numNodes; i++) {
+        initNodes(i, figure1, theta1, figure1PositionOffset);
+        initNodes(i, figure2, theta2, figure2PositionOffset);
+    }
 }
