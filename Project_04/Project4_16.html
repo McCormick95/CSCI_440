@@ -1,6 +1,8 @@
 <!DOCTYPE html>
 <html>
 
+<title>Project4_16</title>
+
 <script id="vertex-shader" type="x-shader/x-vertex">
     #version 300 es
 
@@ -16,22 +18,18 @@
     
     void main()
     {
-        // Transform vertex position into eye coordinates
         vec3 pos = -(uModelViewMatrix * aPosition).xyz;
     
-        // Fixed light position
         vec3 light = uLightPosition.xyz;
         vec3 L = normalize(light - pos);
     
-        // Eye vector
         vec3 E = normalize(-pos);
         vec3 H = normalize(L + E);
     
-        // Transform vertex normal into eye coordinates
         vec4 NN = vec4(aNormal,0);
         vec3 N = normalize((uModelViewMatrix*NN).xyz);
     
-        // Compute terms in the illumination equation
+
         vec4 ambient = uAmbientProduct;
     
         float Kd = max(dot(L, N), 0.0);
@@ -69,6 +67,7 @@
 <script type="text/javascript" src="Project4_16.js"></script>
 
 <div>
+    <h4>Simon Says:</h4>
     <button id="B_1">Scene One</button>
     <button id="B_2">Scene Two</button>
     <button id="B_3">Scene Three</button>

@@ -10,7 +10,7 @@ var lightAmbient = vec4(0.2, 0.2, 0.2, 1.0);
 var lightDiffuse = vec4(1.0, 1.0, 1.0, 1.0);
 var lightSpecular = vec4(1.0, 1.0, 1.0, 1.0);
 
-var materialAmbient = vec4(1.0, 0.0, 1.0, 1.0);
+var materialAmbient = vec4(0.0, 1.0, 1.0, 1.0);
 var materialDiffuse = vec4(1.0, 0.8, 0.0, 1.0);
 var materialSpecular = vec4(1.0, 0.8, 0.0, 1.0);
 var materialShininess = 100.0;
@@ -74,7 +74,8 @@ for (var i = 0; i < numNodes; i++){
     figure2[i] = createNode(null, null, null, null);
 } 
 
-var figure2PositionOffset = vec3(-5.0, 0.0, 0.0);
+var figure2PositionOffset = vec3(5.0, -1.0, 0.0);
+var figure2Scale = 0.8;
 
 var vBuffer;
 var modelViewLoc;
@@ -103,10 +104,18 @@ function createNode(transform, render, sibling, child) {
 function initNodes(Id, figureArray, thetaArray, positionOffset = vec3(0.0, 0.0, 0.0)) {
     var m = mat4();
 
+    var scaleFactor;
+    if (figureArray === figure2) {
+        scaleFactor = figure2Scale;  // if it's figure2, use the larger scale
+    } else {
+        scaleFactor = 1.0;  // if it's not figure2, use normal scale (1.0)
+    }
+
     switch (Id) {
         case torsoId:
             m = translate(positionOffset[0], positionOffset[1], positionOffset[2]);  // Apply offset first
             m = mult(m, rotate(thetaArray[torsoId], vec3(0, 1, 0)));
+            m = mult(m, scale4(scaleFactor, scaleFactor, scaleFactor));
             figureArray[torsoId] = createNode(m, torso, null, headId);
             break;
 
