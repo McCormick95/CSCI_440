@@ -372,7 +372,7 @@ window.onload = function init() {
         
         // remove game over message and reset scale
         game_over = 0;
-        figure2Scale_new = 0.8;
+        figure2Scale = 0.8;
         var gameOverMsg = document.getElementById("game-over-message");
         gameOverMsg.style.display = "block";
         gameOverMsg.innerHTML = "";
@@ -450,14 +450,14 @@ var stateOne = function() {
         theta1[torsoId] += -1 * state_1_toggle_f1;
         
         // controls toggle
-        if(theta1[torsoId] <= 90 || theta1[torsoId] >= 180){
+        if(theta1[torsoId] <= 90 || theta1[torsoId] >= 181){
             state_1_toggle_f1 *= -1;
         }
 
         theta2[torsoId] += -.75 * state_1_toggle_f2;
         
         // controls toggle
-        if(theta2[torsoId] <= 90 || theta2[torsoId] >= 180){
+        if(theta2[torsoId] <= 90 || theta2[torsoId] >= 181){
             state_1_toggle_f2 *= -1;
         } 
     }
@@ -517,7 +517,7 @@ var stateThree = function() {
         theta2[leftLowerArmId] += -1 * state_3_toggle_f2;
         theta2[rightUpperLegId] += -1 * state_3_toggle_f2;
         theta2[rightLowerLegId] = 90;
-        
+
         // controls toggle
         if(theta2[rightUpperLegId] <= 90 || theta2[rightUpperLegId] >= 180 || theta2[leftUpperArmId] <= 90 || theta2[leftUpperArmId] >= 180){
             state_3_toggle_f2 *= -1;
@@ -546,8 +546,8 @@ var stateFour = function() {
 
         // figure 2 disappears after turning head 3 times
         if(game_over >= 3) {
-            if(figure2Scale_new >= 0.001) {
-                figure2Scale_new -= 0.01;
+            if(figure2Scale >= 0.001) {
+                figure2Scale -= 0.01;
             }
             
             for(var i = 0; i < numNodes; i++) {
@@ -555,7 +555,7 @@ var stateFour = function() {
                     var m = mat4();
                     m = translate(figure2PositionOffset[0], figure2PositionOffset[1], figure2PositionOffset[2]);
                     m = mult(m, rotate(theta2[torsoId], vec3(0, 1, 0)));
-                    m = mult(m, scale(figure2Scale_new, figure2Scale_new, figure2Scale_new));
+                    m = mult(m, scale(figure2Scale, figure2Scale, figure2Scale));
                     figure2[torsoId] = createNode(m, torso, null, headId);
                 } else {
                     initNodes(i, figure2, theta2, figure2PositionOffset);
