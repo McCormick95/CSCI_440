@@ -393,12 +393,15 @@ window.onload = function init() {
 var render = function() {
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT); 
 
+    // render figure 1 and set color
     updateLighting(false); 
     traverse(torsoId, figure1);
 
+    //render figure 2 and set color
     updateLighting(true);
     traverse(torsoId, figure2);
-    
+
+    // call all scenes
     stateOne();    
     stateTwo();
     stateThree();
@@ -446,12 +449,14 @@ var stateOne = function() {
     if(scene_1 == true){
         theta1[torsoId] += -1 * state_1_toggle_f1;
         
+        // controls toggle
         if(theta1[torsoId] <= 90 || theta1[torsoId] >= 180){
             state_1_toggle_f1 *= -1;
         }
 
         theta2[torsoId] += -.75 * state_1_toggle_f2;
         
+        // controls toggle
         if(theta2[torsoId] <= 90 || theta2[torsoId] >= 180){
             state_1_toggle_f2 *= -1;
         } 
@@ -471,6 +476,7 @@ var stateTwo = function() {
         theta1[rightUpperArmId] += -0.75 * state_2_toggle_f1;
         theta1[rightLowerArmId] += -1 * state_2_toggle_f1;
         
+        // controls toggle
         if(theta1[rightUpperArmId] <= 90 || theta1[rightUpperArmId] >= 180){
             state_2_toggle_f1 *= -1;
         }
@@ -479,6 +485,7 @@ var stateTwo = function() {
         theta2[rightUpperArmId] += -1 * state_2_toggle_f2;
         theta2[rightLowerArmId] += -0.5 * state_2_toggle_f2;
 
+        // controls toggle
         if(theta2[rightUpperArmId] <= 90 || theta2[rightUpperArmId] >= 180){
             state_2_toggle_f2 *= -1;
         } 
@@ -501,6 +508,7 @@ var stateThree = function() {
         theta1[rightUpperLegId] += -1 * state_3_toggle_f1;
         theta1[rightLowerLegId] = 90;
         
+        // controls toggle
         if(theta1[rightUpperLegId] <= 90 || theta1[rightUpperLegId] >= 180 || theta1[leftUpperArmId] <= 90 || theta1[leftUpperArmId] >= 180){
             state_3_toggle_f1 *= -1;
         }
@@ -510,6 +518,7 @@ var stateThree = function() {
         theta2[rightUpperLegId] += -1 * state_3_toggle_f2;
         theta2[rightLowerLegId] = 90;
         
+        // controls toggle
         if(theta2[rightUpperLegId] <= 90 || theta2[rightUpperLegId] >= 180 || theta2[leftUpperArmId] <= 90 || theta2[leftUpperArmId] >= 180){
             state_3_toggle_f2 *= -1;
         } 
@@ -529,11 +538,13 @@ var stateFour = function() {
     
         theta2[head2Id] += -1 * state_4_toggle_f;
 
+        // controls toggle
         if(theta2[head2Id] <= -45 || theta2[head2Id] >= 45){
             state_4_toggle_f *= -1;
             game_over += 1;
         }
 
+        // figure 2 disappears after turning head 3 times
         if(game_over >= 3) {
             if(figure2Scale_new >= 0.001) {
                 figure2Scale_new -= 0.01;
@@ -551,14 +562,16 @@ var stateFour = function() {
                 }
             }
         } else {
+            // render figure 2 normally if not game over
             for(var i = 0; i < numNodes; i++) {
                 initNodes(i, figure2, theta2, figure2PositionOffset);
             }
         }
-
+        // render figure 1 normally
         for(var i = 0; i < numNodes; i++) {
             initNodes(i, figure1, theta1, figure1PositionOffset);
         }
+        // Update game over message to display winner
         var gameOverMsg = document.getElementById("game-over-message");
         gameOverMsg.style.display = "block";
         gameOverMsg.innerHTML = "Game Over - Figure 1 Wins!";
