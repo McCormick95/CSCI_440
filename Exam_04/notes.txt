@@ -1,0 +1,10 @@
+walk
+    legs move opposite of one another
+Run
+    bent at knees, 2x as fast as walk
+wave
+    arms raise side to side
+
+
+
+NOTE: reset to original position when stopping walk/run/wave
