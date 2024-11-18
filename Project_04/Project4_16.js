@@ -29,6 +29,12 @@ var vertices = [
     vec4(0.5, -0.5, -0.5, 1.0)
 ];
 
+// scene status variables
+var scene_1 = false;
+var scene_2 = false;
+var scene_3 = false;
+var scene_4 = false;
+
 var torsoId = 0;
 var headId = 1;
 var head1Id = 1;
@@ -44,8 +50,8 @@ var rightLowerLegId = 9;
 
 var torsoHeight = 5.0;
 var torsoWidth = 0.7;
-var upperArmHeight = 3.0;
-var lowerArmHeight = 2.0;
+var upperArmHeight = 2.0;
+var lowerArmHeight = 1.5;
 var upperArmWidth = 0.5;
 var lowerArmWidth = 0.5;
 var upperLegWidth = 0.5;
@@ -59,8 +65,8 @@ var numNodes = 10;
 var numAngles = 11;
 var angle = 0;
 
-var theta1 = [0, 0, 0, 0, 0, 0, 180, 0, 180, 0, 0];
-var theta2 = [0, 0, 0, 0, 0, 0, 180, 0, 180, 0, 0];
+var theta1 = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+var theta2 = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
 
 var stack = [];
 
@@ -71,7 +77,7 @@ for (var i = 0; i < numNodes; i++){
     figure1[i] = createNode(null, null, null, null);
     figure2[i] = createNode(null, null, null, null);
 } 
-
+// position for figure 1 and figure 2
 var figure2PositionOffset = vec3(4.0, -1.0, 0.0);
 var figure1PositionOffset = vec3(-4.0, 0.0, 0.0);
 var figure2Scale = 0.8;
@@ -81,14 +87,10 @@ var modelViewLoc;
 
 var pointsArray = [];
 var normalsArray = []; 
-
-function scale4(a, b, c) {
-    var result = mat4();
-    result[0][0] = a;
-    result[1][1] = b;
-    result[2][2] = c;
-    return result;
-}
+// variable for scene_4
+var game_over = 0;
+var m_d = mat4();
+var figure2Scale_new = 0.8;
 
 function createNode(transform, render, sibling, child) {
     var node = {
@@ -114,8 +116,7 @@ function initNodes(Id, figureArray, thetaArray, positionOffset = vec3(0.0, 0.0, 
         case torsoId:
             m = translate(positionOffset[0], positionOffset[1], positionOffset[2]);  
             m = mult(m, rotate(thetaArray[torsoId], vec3(0, 1, 0)));
-            m = mult(m, scale4(scaleFactor, scaleFactor, scaleFactor));
-            //m = mult(m, scale(torsoWidth, torsoHeight, torsoWidth));
+            m = mult(m, scale(scaleFactor, scaleFactor, scaleFactor));
             figureArray[torsoId] = createNode(m, torso, null, headId);
             break;
 
@@ -191,74 +192,74 @@ function traverse(Id, figureArray) {
 
 function torso() {
     instanceMatrix = mult(uModelViewMatrix, translate(0.0, 0.5 * torsoHeight, 0.0));
-    instanceMatrix = mult(instanceMatrix, scale4(torsoWidth, torsoHeight, torsoWidth));
+    instanceMatrix = mult(instanceMatrix, scale(torsoWidth, torsoHeight, torsoWidth));
     gl.uniformMatrix4fv(gl.getUniformLocation(program, "uModelViewMatrix"), false, flatten(instanceMatrix));
     for (var i = 0; i < 6; i++) gl.drawArrays(gl.TRIANGLE_FAN, 4 * i, 4);
 }
 
 function head() {
     instanceMatrix = mult(uModelViewMatrix, translate(0.0, 0.5 * headHeight, 0.0));
-    instanceMatrix = mult(instanceMatrix, scale4(headWidth, headHeight, headWidth));
+    instanceMatrix = mult(instanceMatrix, scale(headWidth, headHeight, headWidth));
     gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(instanceMatrix));
     for (var i = 0; i < 6; i++) gl.drawArrays(gl.TRIANGLE_FAN, 4 * i, 4);
 }
 
 function leftUpperArm() {
     instanceMatrix = mult(uModelViewMatrix, translate(0.0, 0.5 * upperArmHeight, 0.0));
-    instanceMatrix = mult(instanceMatrix, scale4(upperArmWidth, upperArmHeight, upperArmWidth));
+    instanceMatrix = mult(instanceMatrix, scale(upperArmWidth, upperArmHeight, upperArmWidth));
     gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(instanceMatrix));
     for (var i = 0; i < 6; i++) gl.drawArrays(gl.TRIANGLE_FAN, 4 * i, 4);
 }
 
 function leftLowerArm() {
     instanceMatrix = mult(uModelViewMatrix, translate(0.0, 0.5 * lowerArmHeight, 0.0));
-    instanceMatrix = mult(instanceMatrix, scale4(lowerArmWidth, lowerArmHeight, lowerArmWidth));
+    instanceMatrix = mult(instanceMatrix, scale(lowerArmWidth, lowerArmHeight, lowerArmWidth));
     gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(instanceMatrix));
     for (var i = 0; i < 6; i++) gl.drawArrays(gl.TRIANGLE_FAN, 4 * i, 4);
 }
 
 function rightUpperArm() {
     instanceMatrix = mult(uModelViewMatrix, translate(0.0, 0.5 * upperArmHeight, 0.0));
-    instanceMatrix = mult(instanceMatrix, scale4(upperArmWidth, upperArmHeight, upperArmWidth));
+    instanceMatrix = mult(instanceMatrix, scale(upperArmWidth, upperArmHeight, upperArmWidth));
     gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(instanceMatrix));
     for (var i = 0; i < 6; i++) gl.drawArrays(gl.TRIANGLE_FAN, 4 * i, 4);
 }
 
 function rightLowerArm() {
     instanceMatrix = mult(uModelViewMatrix, translate(0.0, 0.5 * lowerArmHeight, 0.0));
-    instanceMatrix = mult(instanceMatrix, scale4(lowerArmWidth, lowerArmHeight, lowerArmWidth));
+    instanceMatrix = mult(instanceMatrix, scale(lowerArmWidth, lowerArmHeight, lowerArmWidth));
     gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(instanceMatrix));
     for (var i = 0; i < 6; i++) gl.drawArrays(gl.TRIANGLE_FAN, 4 * i, 4);
 }
 
 function leftUpperLeg() {
     instanceMatrix = mult(uModelViewMatrix, translate(0.0, 0.5 * upperLegHeight, 0.0));
-    instanceMatrix = mult(instanceMatrix, scale4(upperLegWidth, upperLegHeight, upperLegWidth));
+    instanceMatrix = mult(instanceMatrix, scale(upperLegWidth, upperLegHeight, upperLegWidth));
     gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(instanceMatrix));
     for (var i = 0; i < 6; i++) gl.drawArrays(gl.TRIANGLE_FAN, 4 * i, 4);
 }
 
 function leftLowerLeg() {
     instanceMatrix = mult(uModelViewMatrix, translate(0.0, 0.5 * lowerLegHeight, 0.0));
-    instanceMatrix = mult(instanceMatrix, scale4(lowerLegWidth, lowerLegHeight, lowerLegWidth));
+    instanceMatrix = mult(instanceMatrix, scale(lowerLegWidth, lowerLegHeight, lowerLegWidth));
     gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(instanceMatrix));
     for (var i = 0; i < 6; i++) gl.drawArrays(gl.TRIANGLE_FAN, 4 * i, 4);
 }
 
 function rightUpperLeg() {
     instanceMatrix = mult(uModelViewMatrix, translate(0.0, 0.5 * upperLegHeight, 0.0));
-    instanceMatrix = mult(instanceMatrix, scale4(upperLegWidth, upperLegHeight, upperLegWidth));
+    instanceMatrix = mult(instanceMatrix, scale(upperLegWidth, upperLegHeight, upperLegWidth));
     gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(instanceMatrix));
     for (var i = 0; i < 6; i++) gl.drawArrays(gl.TRIANGLE_FAN, 4 * i, 4);
 }
 
 function rightLowerLeg() {
     instanceMatrix = mult(uModelViewMatrix, translate(0.0, 0.5 * lowerLegHeight, 0.0));
-    instanceMatrix = mult(instanceMatrix, scale4(lowerLegWidth, lowerLegHeight, lowerLegWidth));
+    instanceMatrix = mult(instanceMatrix, scale(lowerLegWidth, lowerLegHeight, lowerLegWidth));
     gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(instanceMatrix));
     for (var i = 0; i < 6; i++) gl.drawArrays(gl.TRIANGLE_FAN, 4 * i, 4);
 }
-
+// added code to update the lighting for both figures
 function quad(a, b, c, d) {
     pointsArray.push(vertices[a]);
     pointsArray.push(vertices[b]);
@@ -285,6 +286,7 @@ function cube() {
     quad(5, 4, 0, 1);
 }
 
+// update lighting and material properties function
 function updateLighting(forFigure2 = false) {
     var figure2MaterialDiffuse = vec4(1.0, 0.0, 1.0, 1.0); 
     
@@ -348,83 +350,86 @@ window.onload = function init() {
     gl.vertexAttribPointer(positionLoc, 4, gl.FLOAT, false, 0, 0);
     gl.enableVertexAttribArray(positionLoc);
 
+    // get status for button 1, 2, 3, 4 and reset button
     document.getElementById("B_1").onclick = function(){
-        stateOne();
-        
-        // lightPosition[0] += 5;
-        // lightPosition[1] += 5;
-        // lightPosition[2] += 5;
-
-        // materialAmbient[0] += 1;
-        // materialAmbient[1] += 1;
-        // materialAmbient[2] += 1;
-
-        // materialDiffuse[0] += 1;
-        // materialDiffuse[1] += 1;
-        // materialDiffuse[2] += 1;
-
-        // materialShininess += 1;
-
-        for(var i = 0; i < numNodes; i++) {
-            initNodes(i, figure1, theta1, figure1PositionOffset);
-            initNodes(i, figure2, theta2, figure2PositionOffset);
-        }
+        scene_1 = !scene_1;
     };
-
     document.getElementById("B_2").onclick = function(){
-
+        scene_2 = !scene_2;
     };
-
     document.getElementById("B_3").onclick = function(){
-
+        scene_3 = !scene_3;
     };
-
     document.getElementById("B_4").onclick = function(){
-
+        scene_4 = !scene_4;
     };
-
-    setInitialState();
+    document.getElementById("B_R").onclick = function(){
+        //reset all scene status and set back to initial state
+        scene_1 = false;
+        scene_2 = false;
+        scene_3 = false;
+        scene_4 = false;
+        
+        // remove game over message and reset scale
+        game_over = 0;
+        figure2Scale = 0.8;
+        var gameOverMsg = document.getElementById("game-over-message");
+        gameOverMsg.style.display = "block";
+        gameOverMsg.innerHTML = "";
+        
+        setInitialState();
+    };
 
     for(var i = 0; i < numNodes; i++) {
         initNodes(i, figure1, theta1, figure1PositionOffset);
         initNodes(i, figure2, theta2, figure2PositionOffset);
     }
- 
+    
+    setInitialState();
+
     render();
 }
 
 var render = function() {
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT); 
 
+    // render figure 1 and set color
     updateLighting(false); 
     traverse(torsoId, figure1);
 
+    //render figure 2 and set color
     updateLighting(true);
     traverse(torsoId, figure2);
 
+    // call all scenes
+    stateOne();    
+    stateTwo();
+    stateThree();
+    stateFour();
+    
     requestAnimationFrame(render);
 }
 
-
+// sets initial state for both figures and resets the game
 var setInitialState = function() {
-    theta1[torsoId] = 45;
+    theta1[torsoId] = 180;
     theta1[head1Id] = 0;
     theta1[leftUpperArmId] = 180;
-    theta1[leftLowerArmId] = 90;
+    theta1[leftLowerArmId] = 0;
     theta1[rightUpperArmId] = 180;
-    theta1[rightLowerArmId] = 90;
+    theta1[rightLowerArmId] = 0;
     theta1[leftUpperLegId] = 180;
     theta1[leftLowerLegId] = 0;
     theta1[rightUpperLegId] = 180;
     theta1[rightLowerLegId] = 0;
     theta1[head2Id] = 0;
 
-    theta2[torsoId] = 45;
+    theta2[torsoId] = 180;
     theta2[head1Id] = 0;
     theta2[leftUpperArmId] = 180;
-    theta2[leftLowerArmId] = 90;
+    theta2[leftLowerArmId] = 0;
     theta2[rightUpperArmId] = 180;
-    theta2[rightLowerArmId] = 90;
+    theta2[rightLowerArmId] = 0;
     theta2[leftUpperLegId] = 180;
     theta2[leftLowerLegId] = 0;
     theta2[rightUpperLegId] = 180;
@@ -437,33 +442,138 @@ var setInitialState = function() {
     }
 }
 
+// scene_1 - Turn left
+var state_1_toggle_f1 = 1;
+var state_1_toggle_f2 = 1;
 var stateOne = function() {
-    theta1[torsoId] = -25;
-    theta1[head1Id] = 0;
-    theta1[leftUpperArmId] = 180;
-    theta1[leftLowerArmId] = 90;
-    theta1[rightUpperArmId] = 180;
-    theta1[rightLowerArmId] = 90;
-    theta1[leftUpperLegId] = 180;
-    theta1[leftLowerLegId] = 0;
-    theta1[rightUpperLegId] = 180;
-    theta1[rightLowerLegId] = 0;
-    theta1[head2Id] = 0;
+    if(scene_1 == true){
+        theta1[torsoId] += -1 * state_1_toggle_f1;
+        
+        // controls toggle
+        if(theta1[torsoId] <= 90 || theta1[torsoId] >= 181){
+            state_1_toggle_f1 *= -1;
+        }
 
-    theta2[torsoId] = -25;
-    theta2[head1Id] = 0;
-    theta2[leftUpperArmId] = 180;
-    theta2[leftLowerArmId] = 90;
-    theta2[rightUpperArmId] = 180;
-    theta2[rightLowerArmId] = 90;
-    theta2[leftUpperLegId] = 180;
-    theta2[leftLowerLegId] = 0;
-    theta2[rightUpperLegId] = 180;
-    theta2[rightLowerLegId] = 0;
-    theta2[head2Id] = 0;
-    
+        theta2[torsoId] += -.75 * state_1_toggle_f2;
+        
+        // controls toggle
+        if(theta2[torsoId] <= 90 || theta2[torsoId] >= 181){
+            state_1_toggle_f2 *= -1;
+        } 
+    }
     for(var i = 0; i < numNodes; i++) {
         initNodes(i, figure1, theta1, figure1PositionOffset);
         initNodes(i, figure2, theta2, figure2PositionOffset);
+    }
+}
+
+// scene_2 - Turn raise right hand
+var state_2_toggle_f1 = 1;
+var state_2_toggle_f2 = 1;
+var stateTwo = function() {
+
+    if(scene_2 == true){
+        theta1[rightUpperArmId] += -0.75 * state_2_toggle_f1;
+        theta1[rightLowerArmId] += -1 * state_2_toggle_f1;
+        
+        // controls toggle
+        if(theta1[rightUpperArmId] <= 90 || theta1[rightUpperArmId] >= 180){
+            state_2_toggle_f1 *= -1;
+        }
+
+
+        theta2[rightUpperArmId] += -1 * state_2_toggle_f2;
+        theta2[rightLowerArmId] += -0.5 * state_2_toggle_f2;
+
+        // controls toggle
+        if(theta2[rightUpperArmId] <= 90 || theta2[rightUpperArmId] >= 180){
+            state_2_toggle_f2 *= -1;
+        } 
+    }
+
+    for(var i = 0; i < numNodes; i++) {
+        initNodes(i, figure1, theta1, figure1PositionOffset);
+        initNodes(i, figure2, theta2, figure2PositionOffset);
+    }
+}
+
+// scene_3 - Raise left hand and right leg
+var state_3_toggle_f1 = 1;
+var state_3_toggle_f2 = 1;
+var stateThree = function() {
+
+    if(scene_3 == true){
+        theta1[leftUpperArmId] += -1 * state_3_toggle_f1;
+        theta1[leftLowerArmId] += -1 * state_3_toggle_f1;
+        theta1[rightUpperLegId] += -1 * state_3_toggle_f1;
+        theta1[rightLowerLegId] = 90;
+        
+        // controls toggle
+        if(theta1[rightUpperLegId] <= 90 || theta1[rightUpperLegId] >= 180 || theta1[leftUpperArmId] <= 90 || theta1[leftUpperArmId] >= 180){
+            state_3_toggle_f1 *= -1;
+        }
+
+        theta2[leftUpperArmId] += -1 * state_3_toggle_f2;
+        theta2[leftLowerArmId] += -1 * state_3_toggle_f2;
+        theta2[rightUpperLegId] += -1 * state_3_toggle_f2;
+        theta2[rightLowerLegId] = 90;
+
+        // controls toggle
+        if(theta2[rightUpperLegId] <= 90 || theta2[rightUpperLegId] >= 180 || theta2[leftUpperArmId] <= 90 || theta2[leftUpperArmId] >= 180){
+            state_3_toggle_f2 *= -1;
+        } 
+    }
+
+    for(var i = 0; i < numNodes; i++) {
+        initNodes(i, figure1, theta1, figure1PositionOffset);
+        initNodes(i, figure2, theta2, figure2PositionOffset);
+    }
+}
+
+// scene_4 - Rotate head - figure 2 loses and disappears
+//        figure 2 disappears
+var state_4_toggle_f = 1;
+var stateFour = function() {
+    if(scene_4 == true){
+    
+        theta2[head2Id] += -1 * state_4_toggle_f;
+
+        // controls toggle
+        if(theta2[head2Id] <= -45 || theta2[head2Id] >= 45){
+            state_4_toggle_f *= -1;
+            game_over += 1;
+        }
+
+        // figure 2 disappears after turning head 3 times
+        if(game_over >= 3) {
+            if(figure2Scale >= 0.001) {
+                figure2Scale -= 0.01;
+            }
+            
+            for(var i = 0; i < numNodes; i++) {
+                if(i === torsoId) {
+                    var m = mat4();
+                    m = translate(figure2PositionOffset[0], figure2PositionOffset[1], figure2PositionOffset[2]);
+                    m = mult(m, rotate(theta2[torsoId], vec3(0, 1, 0)));
+                    m = mult(m, scale(figure2Scale, figure2Scale, figure2Scale));
+                    figure2[torsoId] = createNode(m, torso, null, headId);
+                } else {
+                    initNodes(i, figure2, theta2, figure2PositionOffset);
+                }
+            }
+        } else {
+            // render figure 2 normally if not game over
+            for(var i = 0; i < numNodes; i++) {
+                initNodes(i, figure2, theta2, figure2PositionOffset);
+            }
+        }
+        // render figure 1 normally
+        for(var i = 0; i < numNodes; i++) {
+            initNodes(i, figure1, theta1, figure1PositionOffset);
+        }
+        // Update game over message to display winner
+        var gameOverMsg = document.getElementById("game-over-message");
+        gameOverMsg.style.display = "block";
+        gameOverMsg.innerHTML = "Game Over - Figure 1 Wins!";
     }
 }
